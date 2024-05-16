@@ -1,6 +1,8 @@
 // src/components/LoginForm.js
 import ProfilePicture from './ProfilePicture';
 import handleLogin  from '../utils/login';
+import handleKeyDown from '../utils/handleKeyDown';
+
 const LoginForm = ({ togglePasswordVisibility, passwordVisible, showSignupForm }) => (
   <form id="login-form">
     <ProfilePicture /><br />
@@ -13,6 +15,7 @@ const LoginForm = ({ togglePasswordVisibility, passwordVisible, showSignupForm }
         placeholder="Password"
         id="password"
         name="password"
+        onKeyDown={(e) => handleKeyDown(e, handleLogin)}
       /><br />
       <a href="#" className="forgot-password">Quên mật khẩu?</a>
     </div>

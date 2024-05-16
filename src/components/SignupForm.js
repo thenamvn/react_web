@@ -1,5 +1,6 @@
 // src/components/SignupForm.js
 import ProfilePicture from './ProfilePicture';
+import handleKeyDown from '../utils/handleKeyDown';
 const SignupForm = ({ showLoginForm }) => (
   <form id="signup-form">
     <ProfilePicture /><br />
@@ -23,6 +24,7 @@ const SignupForm = ({ showLoginForm }) => (
         placeholder="Confirm Password"
         id="confirm-password"
         name="confirm-password"
+        onKeyDown={(e) => handleKeyDown(e, handleSignUp)}
       /><br />
     </div>
     <a className="bn31">
@@ -31,5 +33,9 @@ const SignupForm = ({ showLoginForm }) => (
     <p className="no-account">Đã có tài khoản ?<a onClick={showLoginForm} className="link"> Đăng nhập</a></p>
   </form>
 );
+
+const handleSignUp = () => {
+  console.log("Sign up");
+}
 
 export default SignupForm;
