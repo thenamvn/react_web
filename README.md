@@ -1,3 +1,7 @@
+# Run Server
+## `nodejs server.js`
+Server will run on port 999
+## `npm start`
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
