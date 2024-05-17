@@ -1,10 +1,11 @@
+const BASE_URL = "http://localhost:3000";
 const handleSignUp = async (fullname, username, password, confirmPassword) => {
   if (password !== confirmPassword) {
     console.error("Passwords do not match");
     return;
   }
 
-  const response = await fetch("http://localhost:9999/signup", {
+  const response = await fetch(`${BASE_URL}/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -14,7 +15,7 @@ const handleSignUp = async (fullname, username, password, confirmPassword) => {
 
   const data = await response.json();
   if (data.success) {
-    console.log(data.message);
+    alert(data.message);
   } else {
     alert(data.message);
   }

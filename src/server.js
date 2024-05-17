@@ -339,6 +339,6 @@ app.delete("/delete-attendance", (req, res) => {
   );
 });
 
-app.listen(9999, () => {
-  console.log("Server is running on port 9999");
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
 });
