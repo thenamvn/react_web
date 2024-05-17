@@ -72,6 +72,7 @@ form {
   padding:0 18px; 
   margin-top: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.5);
 }
 
 .login-screen input[type="text"]:focus,
@@ -113,6 +114,7 @@ form {
   cursor: pointer;
   display: block;
   margin: 10px auto; /* Center the button */
+  border: none;
 }
 
 .bn31:hover {
@@ -223,4 +225,8 @@ form {
 .link:hover {
   color: #f37e10;
   text-decoration: underline;
+}
+
+.error-message {
+  color: red;
 }
