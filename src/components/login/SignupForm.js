@@ -1,10 +1,10 @@
 // src/components/SignupForm.js
 import React, { useState } from "react";
 import ProfilePicture from "./ProfilePicture";
-import handleKeyDown from "../utils/handleKeyDown";
-import handleSignUp from "../utils/signup";
+import handleKeyDown from "../../utils/handleKeyDown";
+import handleSignUp from "../../utils/signup";
 
-const SignupForm = ({ showLoginForm }) => {
+const SignupForm = ({ showLoginForm, navigate }) => {
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,9 +26,13 @@ const SignupForm = ({ showLoginForm }) => {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
     } else {
-      handleSignUp(fullname, username, password, confirmPassword);
+      handleSignUp(fullname, username, password, confirmPassword, navigate);
     }
   };
+
+  const navigateToLoginForm = () => {
+    navigate('/login');
+  }
 
   return (
     <form id="signup-form" onSubmit={handleSubmit}>
@@ -82,7 +86,7 @@ const SignupForm = ({ showLoginForm }) => {
       </button>
       <p className="no-account">
         Đã có tài khoản ?
-        <a onClick={showLoginForm} className="link">
+        <a onClick={navigateToLoginForm} className="link">
           {" "}
           Đăng nhập
         </a>

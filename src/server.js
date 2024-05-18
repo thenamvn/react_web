@@ -73,7 +73,7 @@ app.post("/login", (req, res) => {
           const token = jwt.sign(
             { username: username },
             process.env.SECRET_KEY,
-            { expiresIn: "7d" }
+            { expiresIn: "1d" }
           );
 
           // Send success message along with the token
@@ -82,6 +82,7 @@ app.post("/login", (req, res) => {
             message: "Logged in successfully",
             token: token,
             fullname: results[0].fullname,
+            username: results[0].username,
           });
         } else {
           res.json({

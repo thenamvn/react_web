@@ -1,5 +1,7 @@
+// src/utils/signup.js
 const BASE_URL = "http://localhost:3000";
-const handleSignUp = async (fullname, username, password, confirmPassword) => {
+
+const handleSignUp = async (fullname, username, password, confirmPassword, navigate) => {
   if (password !== confirmPassword) {
     console.error("Passwords do not match");
     return;
@@ -16,8 +18,10 @@ const handleSignUp = async (fullname, username, password, confirmPassword) => {
   const data = await response.json();
   if (data.success) {
     alert(data.message);
+    navigate('/login');
   } else {
     alert(data.message);
   }
 };
+
 export default handleSignUp;

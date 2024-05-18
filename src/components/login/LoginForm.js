@@ -1,10 +1,23 @@
-// src/components/LoginForm.js
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProfilePicture from './ProfilePicture';
-import handleLogin  from '../utils/login';
-import handleKeyDown from '../utils/handleKeyDown';
-import { useEffect } from 'react';
+import handleLogin from '../../utils/login';
+import handleKeyDown from '../../utils/handleKeyDown';
 
 const LoginForm = ({ togglePasswordVisibility, passwordVisible, showSignupForm }) => {
+  const navigate = useNavigate();
+
+  const navigateToSignupForm = () => {
+    navigate('/signup');
+  }
+
+  const handleRememberMeChange = () => {
+    const rememberMeCheckbox = document.getElementById("remember-me");
+    if (!rememberMeCheckbox.checked) {
+      localStorage.removeItem("password");
+    }
+  };
+
   useEffect(() => {
     const rememberedUsername = localStorage.getItem("username");
     const rememberedPassword = localStorage.getItem("password");
@@ -28,13 +41,13 @@ const LoginForm = ({ togglePasswordVisibility, passwordVisible, showSignupForm }
           placeholder="Password"
           id="password"
           name="password"
-          onKeyDown={(e) => handleKeyDown(e, handleLogin)}
+          onKeyDown={(e) => handleKeyDown(e, (event) => handleLogin(event, navigate))}
         /><br />
         <a href="#" className="forgot-password">Quên mật khẩu?</a>
       </div>
       <div className="checkbox-wrapper-29">
         <label className="checkbox">
-          <input type="checkbox" id="remember-me" className="checkbox__input" />
+          <input type="checkbox" id="remember-me" className="checkbox__input" onChange={handleRememberMeChange} />
           <span className="checkbox__label"></span>
           Nhớ mật khẩu
         </label>
@@ -52,9 +65,9 @@ const LoginForm = ({ togglePasswordVisibility, passwordVisible, showSignupForm }
         </label>
       </div>
       <a className="bn31">
-        <span onClick={handleLogin} id="login-button" className="bn31span">Đăng nhập</span>
+        <span onClick={(event) => handleLogin(event, navigate)} id="login-button" className="bn31span">Đăng nhập</span>
       </a>
-      <p className="no-account">Chưa có tài khoản ?<a onClick={showSignupForm} className="link"> Đăng kí</a></p>
+      <p className="no-account">Chưa có tài khoản ?<a onClick={navigateToSignupForm} className="link"> Đăng kí</a></p>
     </form>
   );
 };

@@ -1,5 +1,9 @@
+// src/utils/login.js
 const BASE_URL = "http://localhost:3000";
-const handleLogin = () => {
+
+const handleLogin = (event, navigate) => {
+  event.preventDefault();
+
   // Get username and password values from your form
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
@@ -18,16 +22,18 @@ const handleLogin = () => {
       if (data.success) {
         // Save the token to localStorage
         localStorage.setItem("token", data.token);
+        localStorage.setItem("username", data.username);
         localStorage.setItem("current_username", data.fullname);
+
         if (remember) {
           localStorage.setItem("username", username);
           localStorage.setItem("password", password);
-        }else{
-          localStorage.removeItem("username");
+        } else {
           localStorage.removeItem("password");
         }
-        // render to dashboard
-        alert(data.message);
+
+        // Navigate to the dashboard
+        navigate('/dashboard');
       } else {
         alert(data.message);
       }
@@ -36,4 +42,5 @@ const handleLogin = () => {
       console.error("Error:", error);
     });
 };
+
 export default handleLogin;
