@@ -3,8 +3,10 @@ import React, { useState } from "react";
 import ProfilePicture from "./ProfilePicture";
 import handleKeyDown from "../../utils/handleKeyDown";
 import handleSignUp from "../../utils/signup";
+import { useNavigate } from 'react-router-dom';
 
-const SignupForm = ({ showLoginForm, navigate }) => {
+const SignupForm = () => {
+  const navigate = useNavigate();
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
