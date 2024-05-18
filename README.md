@@ -1,7 +1,7 @@
-# Run Server
-## `nodejs server.js`
-Server will run on port 999
-## `npm start`
+# Hướng dẫn chung
+## `nodejs server.js` để chạy server
+Server will run on port 9999
+## `npm start` để chạy web
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
