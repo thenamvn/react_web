@@ -12,9 +12,11 @@ const SignupForm = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (event) => {
-    event.preventDefault();
+    if (event) event.preventDefault();
+    setIsSubmitting(true);
 
     const newErrors = {};
     if (!fullname) newErrors.fullname = "*Full name is required";
@@ -83,7 +85,7 @@ const SignupForm = () => {
         {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
         <br />
       </div>
-      <button type="submit" className="bn31">
+      <button type="submit" disabled={isSubmitting} className="bn31">
         <span className="bn31span">Đăng kí</span>
       </button>
       <p className="no-account">

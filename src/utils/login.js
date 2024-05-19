@@ -2,7 +2,7 @@
 const BASE_URL = "http://localhost:3000";
 
 const handleLogin = (event, navigate) => {
-  event.preventDefault();
+  if (event) event.preventDefault();
 
   // Get username and password values from your form
   const username = document.getElementById("username").value;
