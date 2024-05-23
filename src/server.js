@@ -51,7 +51,7 @@ app.post("/signup", (req, res) => {
           });
         }
       } else {
-        res.json({ success: true, message: "User registered successfully!" });
+        res.json({ success: true, message: "User registered successfully! Please login again!" });
       }
     }
   );
