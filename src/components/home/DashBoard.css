@@ -1,14 +1,15 @@
-.bg-image {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-image: url("../public/images/bg_dashboard.jpg");
-  background-size: cover;
+
+.bg-dashboard {
+  position: fixed; /* Fixed/sticky position */
+  top: 0; /* Place the button at the top of the page */
+  left: 0; /* Place the button at the start of the page */
+  right: 0; /* Stretch the button to the end of the page */
+  bottom: 0; /* Stretch the button to the bottom of the page */
+  background-image: url("../../../public/images/bg_dashboard.jpg"); /* Add your background image */
+  background-size: cover; /* Make the image cover the whole div */
+  display: flex; /* Display flex */
+  justify-content: center; /* Center the content horizontally */
+  align-items: center; /* Center the content vertically */
 }
 
 .container {

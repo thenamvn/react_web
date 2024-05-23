@@ -1,9 +1,9 @@
 import "@fortawesome/fontawesome-free/css/all.min.css";
-
+import './DashBoard.css';
 const DashBoard = () => {
   return (
     // src/components/home/DashBoard.js
-    <div className="bg-image">
+    <div className="bg-dashboard">
       <div className="container">
         <h1>WebGame</h1>
         <button className="create-game-btn">

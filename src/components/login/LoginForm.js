@@ -1,11 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProfilePicture from './ProfilePicture';
 import handleLogin from '../../utils/login';
 import handleKeyDown from '../../utils/handleKeyDown';
 
-const LoginForm = ({ togglePasswordVisibility, passwordVisible, showSignupForm }) => {
+const LoginForm = () => {
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const navigate = useNavigate();
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
 
   const navigateToSignupForm = () => {
     navigate('/signup');
