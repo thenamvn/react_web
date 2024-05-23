@@ -4,7 +4,6 @@ import QRCode from 'qrcode.react';
 
 const Room = () => {
   const { roomId } = useParams();
-
   return (
     <div>
       <h1>Welcome to room {roomId}</h1>
