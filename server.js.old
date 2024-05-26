@@ -67,71 +67,13 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-
-// app.post('/upload', upload.array('file'), (req, res) => {
-//   if (!req.files || req.files.length === 0) {
-//     return res.status(400).json({ message: 'No files uploaded or file type is not allowed.' });
-//   }
-//   const fileUrls = req.files.map(file => `http://localhost:${PORT}/uploads/${file.filename}`);
-//   res.status(200).json({ fileUrls });
-// });
-
-// Endpoint to handle file uploads
-
-app.post('/createroom', (req, res) => {
-  const { id, admin_username } = req.body;
-
-  if (!id || !admin_username) {
-    return res.status(400).json({ error: 'Room ID and admin username are required.' });
-  }
-
-  const query = 'INSERT INTO room (id, admin_username) VALUES (?, ?)';
-
-  pool.query(query, [id, admin_username], (err, result) => {
-    if (err) {
-      console.error('Error inserting into room table:', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-
-    res.status(201).json({ message: 'Room created successfully.' });
-  });
-});
-
+// Endpoint upload file
 app.post('/upload', upload.array('file'), (req, res) => {
-  const files = req.files;
-  const room_id = req.body.room_id;
-  const uploader_username = req.body.uploader_username;
-
-  if (!files) {
-    return res.status(400).json({ error: 'No files were uploaded.' });
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ message: 'No files uploaded or file type is not allowed.' });
   }
-
-  // Check if the room exists
-  pool.query('SELECT * FROM room WHERE id = ?', [room_id], (err, results) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Room not exist' });
-    }
-
-    if (results.length === 0) {
-      return res.status(400).json({ error: 'Room does not exist.' });
-    }
-
-    // If the room exists, insert the images
-    const fileUrls = files.map(file => `http://localhost:${PORT}/uploads/${file.filename}`);
-    const values = files.map(file => [room_id, uploader_username, `/uploads/${file.filename}`]);
-
-    const query = 'INSERT INTO images (room_id, uploader_username, image_path) VALUES ?';
-
-    pool.query(query, [values], (err, result) => {
-      if (err) {
-        console.error('Error inserting into images table:', err);
-        return res.status(500).json({ error: 'Database error' });
-      }
-
-      res.status(200).json({ fileUrls });
-    });
-  });
+  const fileUrls = req.files.map(file => `http://localhost:${PORT}/uploads/${file.filename}`);
+  res.status(200).json({ fileUrls });
 });
 
 // Serve static files from the public directory

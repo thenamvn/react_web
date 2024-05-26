@@ -1,13 +1,20 @@
 /* Room.module.css */
+.bg_room {
+  top: 0; /* Place the button at the top of the page */
+  left: 0; /* Place the button at the start of the page */
+  right: 0; /* Stretch the button to the end of the page */
+  bottom: 0; /* Stretch the button to the bottom of the page */
+}
 .container {
   max-width: 800px;
-  margin: 0 auto;
+  margin-left: 20px;
   padding: 20px;
 }
 
 .room-title {
   font-size: 24px;
   color: #333;
+  align-content: center;
 }
 
 .room-link {
