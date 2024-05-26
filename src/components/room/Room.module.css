@@ -1,0 +1,61 @@
+/* Room.module.css */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.room-title {
+  font-size: 24px;
+  color: #333;
+}
+
+.room-link {
+  color: #666;
+}
+
+.room-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.room-link a:hover {
+  text-decoration: underline;
+}
+
+.upload-form {
+  margin-top: 20px;
+}
+
+.file-input {
+  display: block;
+  margin-top: 10px;
+}
+
+.upload-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.upload-button:hover {
+  background-color: #0056b3;
+}
+
+.uploaded-content {
+  margin-top: 20px;
+}
+
+.uploaded-content-title {
+  font-size: 20px;
+  color: #333;
+}
+
+.uploaded-image {
+  max-width: 100%;
+  height: auto;
+  margin-top: 10px;
+}

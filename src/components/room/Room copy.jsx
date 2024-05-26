@@ -1,7 +1,9 @@
+// Room.js
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import QRCode from 'qrcode.react';
 import { readAndCompressImage } from 'browser-image-resizer';
+import styles from './Room.module.css'; // Import CSS module
 
 const Room = () => {
   const { roomId } = useParams();
@@ -45,20 +47,21 @@ const Room = () => {
         console.error('Error:', error);
       });
   }
+
   return (
-    <div>
-      <h1>Welcome to room {roomId}</h1>
-      <p>Room Link: <a href={window.location.href}>{window.location.href}</a></p>
+    <div className={styles.container}>
+      <h1 className={styles.roomTitle}>Welcome to room {roomId}</h1>
+      <p className={styles.roomLink}>Room Link: <a href={window.location.href}>{window.location.href}</a></p>
       <QRCode value={window.location.href} /><br />
-      <form onSubmit={handleSubmit}>
+      <form className={styles.uploadForm} onSubmit={handleSubmit}>
         <h1>Upload File</h1>
-        <input type="file" onChange={handleChange} />
-        <button type="submit">Upload</button>
+        <input type="file" onChange={handleChange} className={styles.fileInput} />
+        <button type="submit" className={styles.uploadButton}>Upload</button>
       </form>
       {uploadedFileURL && (
-        <div>
-          <h2>Uploaded Content</h2>
-          <img src={uploadedFileURL} alt="Uploaded content" />
+        <div className={styles.uploadedContent}>
+          <h2 className={styles.uploadedContentTitle}>Uploaded Content</h2>
+          <img src={uploadedFileURL} alt="Uploaded content" className={styles.uploadedImage} />
         </div>
       )}
     </div>

@@ -68,11 +68,12 @@ const upload = multer({
 });
 
 // Endpoint upload file
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded or file type is not allowed.' });
+app.post('/upload', upload.array('file'), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ message: 'No files uploaded or file type is not allowed.' });
   }
-  res.status(200).json({ fileUrl: `http://localhost:${PORT}/uploads/${req.file.filename}` });
+  const fileUrls = req.files.map(file => `http://localhost:${PORT}/uploads/${file.filename}`);
+  res.status(200).json({ fileUrls });
 });
 
 // Serve static files from the public directory
