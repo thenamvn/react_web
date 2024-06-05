@@ -1,6 +1,6 @@
 // Room.js
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import QRCode from "qrcode.react";
 import { readAndCompressImage } from "browser-image-resizer";
 import styles from "./Room.module.css"; // Import CSS module
@@ -15,6 +15,46 @@ const Room = () => {
   const [uploadedFileURLs, setUploadedFileURLs] = useState([]);
   const [isSliderVisible, setIsSliderVisible] = useState(true);
   const [showRoomInfo, setShowRoomInfo] = useState(false);
+  const [roomDetails, setRoomDetails] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Fetch room details from the backend
+    fetch(`http://localhost:3000/room/${id}`)
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(
+            `Network response was not ok: ${response.status} - ${errorText}`
+          );
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setRoomDetails(data);
+        setIsAdmin(data.admin_username === localStorage.getItem("username"));
+      })
+      .catch((error) => {
+        console.error("Error fetching room details:", error);
+        setError(error.message);
+      });
+  }, [id]);
+
+  useEffect(() => {
+    // Only fetch images if the current user is not an admin
+    if (!isAdmin) {
+      // Fetch images for the room
+      fetch(`http://localhost:3000/room/${id}/images`)
+        .then((response) => response.json())
+        .then((data) => {
+          setUploadedFileURLs(data.map((image) => image.image_path));
+        })
+        .catch((error) => {
+          console.error("Error fetching images:", error);
+        });
+    }
+  }, [id, isAdmin]);
 
   function handleChange(event) {
     const filesArray = Array.from(event.target.files);
@@ -57,60 +97,83 @@ const Room = () => {
       });
   }
 
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!roomDetails) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className={styles.bg_room}>
       <h1 className={styles.roomTitle}>Welcome to room {id}</h1>
-      <button
-        className={styles.shareButton}
-        onClick={() => setShowRoomInfo(true)}
-      >
-        Share
-      </button>
-      {showRoomInfo && (
-        <div className={styles.roomInfo}>
+      {isAdmin ? (
+        <>
           <button
-            className={styles.closeButton}
-            onClick={() => setShowRoomInfo(false)}
+            className={styles.shareButton}
+            onClick={() => setShowRoomInfo(true)}
           >
-            X
+            Share
           </button>
-          <br />
-          <p className={styles.roomLink}>
-            Room Link: <a href={window.location.href}>{window.location.href}</a>
+          {showRoomInfo && (
+            <div className={styles.roomInfo}>
+              <button
+                className={styles.closeButton}
+                onClick={() => setShowRoomInfo(false)}
+              >
+                X
+              </button>
+              <br />
+              <p className={styles.roomLink}>
+                Room Link:{" "}
+                <a href={window.location.href}>{window.location.href}</a>
+                <br />
+                Scan QR code to join the room
+              </p>
+              <br />
+              <div className={styles.qrCode}>
+                <QRCode value={window.location.href} />
+              </div>
+              <br />
+            </div>
+          )}
+          <form className={styles.uploadForm} onSubmit={handleSubmit}>
+            <h1>Game Upload</h1>
+            <input
+              type="file"
+              onChange={handleChange}
+              className={styles.fileInput}
+              multiple
+            />
             <br />
-            Scan QR code to join the room
-          </p>
-          <br />
-          <div className={styles.qrCode}>
-            <QRCode value={window.location.href} />
-          </div>
-          <br />
+            <textarea
+              placeholder="Description"
+              className={styles.descriptionInput}
+            />
+            <br />
+            <button type="submit" className={styles.uploadButton}>
+              Upload
+            </button>
+          </form>
+        </>
+      ) : (
+        <div className={styles.nonAdminView}>
+          <h2>You are not the admin of this room.</h2>
+          <p>Please enjoy the content shared in this room.</p>
         </div>
       )}
-      <form className={styles.uploadForm} onSubmit={handleSubmit}>
-        <h1>Game Upload</h1>
-        <input
-          type="file"
-          onChange={handleChange}
-          className={styles.fileInput}
-          multiple
-        />
-        <br />
-        <textarea
-          placeholder="Description"
-          className={styles.descriptionInput}
-        />
-        <br />
-        <button type="submit" className={styles.uploadButton}>
-          Upload
-        </button>
-      </form>
       {uploadedFileURLs.length > 0 && (
         <div className={styles.sliderContainer}>
-          <button className={styles.uploadButton} onClick={() => setIsSliderVisible(!isSliderVisible)}>
-            {isSliderVisible ? "Hide" : "Show"} Slider
-          </button>
-          {isSliderVisible && (
+          {isAdmin && (
+            <button
+              className={styles.uploadButton}
+              onClick={() => setIsSliderVisible(!isSliderVisible)}
+            >
+              {isSliderVisible ? "Hide" : "Show"} Slider
+            </button>
+          )}
+          {(isAdmin ? isSliderVisible : true) && (
             <Slider
               {...{
                 dots: true,
@@ -157,6 +220,16 @@ const Room = () => {
               ))}
             </Slider>
           )}
+        </div>
+      )}
+
+      {!isAdmin && uploadedFileURLs.length === 0 && (
+        <div className={styles.noContentMessage}>
+          <p>No content has been shared in this room yet.</p>
+          <p>
+            Please check back later or ask the room admin to upload some
+            content.
+          </p>
         </div>
       )}
     </div>

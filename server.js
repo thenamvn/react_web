@@ -97,6 +97,54 @@ app.post('/createroom', (req, res) => {
   });
 });
 
+// Get room details by ID
+app.get('/room/:id', (req, res) => {
+  const roomId = req.params.id;
+
+  const query = `
+    SELECT r.id, r.admin_username
+    FROM room r
+    JOIN users u ON r.admin_username = u.username
+    WHERE r.id = ?
+  `;
+
+  pool.query(query, [roomId], (err, results) => {
+    if (err) {
+      console.error('Error fetching room details:', err);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Room not found' });
+      return;
+    }
+
+    res.json(results[0]);
+  });
+});
+
+// Get images for a room uploaded by the admin
+app.get('/room/:id/images', (req, res) => {
+  const roomId = req.params.id;
+
+  const query = `
+    SELECT i.image_id, i.room_id, i.uploader_username, i.image_path, i.uploaded_at
+    FROM images i
+    JOIN room r ON i.room_id = r.id
+    WHERE i.room_id = ? AND i.uploader_username = r.admin_username
+  `;
+
+  pool.query(query, [roomId], (err, results) => {
+    if (err) {
+      console.error('Error fetching images:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+    res.json(results);
+  });
+});
+
 app.post('/upload', upload.array('file'), (req, res) => {
   const files = req.files;
   const room_id = req.body.room_id;
