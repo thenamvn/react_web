@@ -54,8 +54,8 @@ const Room = () => {
 
   return (
     <div className={styles.bg_room}>
-      <div className={styles.container}>
-        <h1 className={styles.roomTitle}>Welcome to room {id}</h1>
+      <h1 className={styles.roomTitle}>Welcome to room {id}</h1>
+      <div className={styles.roomInfo}>
         <p className={styles.roomLink}>
           Room Link: <a href={window.location.href}>{window.location.href}</a><br />
           Scan QR code to join the room

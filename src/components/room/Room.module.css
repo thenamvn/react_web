@@ -5,12 +5,14 @@
   right: 0; /* Stretch the button to the end of the page */
   bottom: 0; /* Stretch the button to the bottom of the page */
 }
-.container {
-  max-width: 800px;
-  margin-left: 20px;
-  padding: 20px;
-}
 
+
+.roomInfo {
+  top: 0;
+  display: flex; /* Display flex */
+  justify-content: center; /* Center the content horizontally */
+  align-items: center; /* Center the content vertically */
+}
 .room-title {
   font-size: 24px;
   color: #333;

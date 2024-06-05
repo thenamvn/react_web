@@ -1,9 +1,9 @@
-// src/components/SignupForm.js
 import React, { useState } from "react";
 import ProfilePicture from "./ProfilePicture";
 import handleKeyDown from "../../utils/handleKeyDown";
 import handleSignUp from "../../utils/signup";
 import { useNavigate } from 'react-router-dom';
+import styles from '../login/Login.module.css';
 
 const SignupForm = () => {
   const navigate = useNavigate();
@@ -39,20 +39,21 @@ const SignupForm = () => {
   }
 
   return (
-    <form id="signup-form" onSubmit={handleSubmit}>
+    <div className={styles.signupContainer}>
+    <form id="signup-form" onSubmit={handleSubmit} className={styles.loginForm}>
       <ProfilePicture />
       <br />
-      <div className="username-container">
+      <div className={styles.inputContainer}>
         <input
           type="text"
           placeholder="Full Name"
           value={fullname}
           onChange={(e) => setFullname(e.target.value)}
         />
-        {errors.fullname && <div className="error-message">{errors.fullname}</div>}
+        {errors.fullname && <div className={styles.errorMessage}>{errors.fullname}</div>}
       </div>
       <br />
-      <div className="username-container">
+      <div className={styles.inputContainer}>
         <input
           type="text"
           placeholder="New Username"
@@ -60,21 +61,21 @@ const SignupForm = () => {
           onChange={(e) => setUsername(e.target.value)}
           autoComplete="username"
         />
-        {errors.username && <div className="error-message">{errors.username}</div>}
+        {errors.username && <div className={styles.errorMessage}>{errors.username}</div>}
       </div>
       <br />
-      <div className="password-container">
+      <div className={styles.inputContainer}>
         <input
           type="password"
           placeholder="New Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {errors.password && <div className="error-message">{errors.password}</div>}
+        {errors.password && <div className={styles.errorMessage}>{errors.password}</div>}
         <br />
       </div>
       <br />
-      <div className="password-container">
+      <div className={styles.inputContainer}>
         <input
           type="password"
           placeholder="Confirm Password"
@@ -82,20 +83,21 @@ const SignupForm = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           onKeyDown={(e) => handleKeyDown(e, handleSubmit)}
         />
-        {errors.confirmPassword && <div className="error-message">{errors.confirmPassword}</div>}
+        {errors.confirmPassword && <div className={styles.errorMessage}>{errors.confirmPassword}</div>}
         <br />
       </div>
-      <button type="submit" disabled={isSubmitting} className="bn31">
-        <span className="bn31span">Đăng kí</span>
+      <button type="submit" disabled={isSubmitting} className={styles.loginButton}>
+        <span className={styles.loginButtonText}>Đăng kí</span>
       </button>
-      <p className="no-account">
+      <p className={styles.noAccount}>
         Đã có tài khoản ?
-        <a onClick={navigateToLoginForm} className="link">
+        <a onClick={navigateToLoginForm} className={styles.link}>
           {" "}
           Đăng nhập
         </a>
       </p>
     </form>
+    </div>
   );
 };
 

@@ -1,6 +1,7 @@
 // src/components/ProfilePicture.js
+import styles from '../login/Login.module.css';
 const ProfilePicture = () => (
-  <div className="profile-picture">
+  <div className={styles.ProfilePicture}>
     <img src="./images/logo.png" alt="Profile Picture" />
   </div>
 );
