@@ -36,3 +36,4 @@ Create Table job (
 );
 
 select * from users;
+select * from job;

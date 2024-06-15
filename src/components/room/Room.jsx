@@ -15,6 +15,7 @@ const Room = () => {
   const [uploadedFileURLs, setUploadedFileURLs] = useState([]);
   const [isSliderVisible, setIsSliderVisible] = useState(true);
   const [showRoomInfo, setShowRoomInfo] = useState(false);
+  const [showUploadFormUser, setShowUploadFormUser] = useState(false);
   const [roomDetails, setRoomDetails] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState(null);
@@ -188,6 +189,34 @@ const Room = () => {
         </>
       ) : (
         <div className={styles.nonAdminView}>
+          <button
+            className={styles.shareButton}
+            onClick={() => setShowUploadFormUser(true)}
+          >
+            Submit Job
+          </button>
+          {showUploadFormUser && (
+            <form className={styles.uploadForm} onSubmit={handleSubmit}>
+              <h1>Submit Job</h1>
+              <input
+                type="file"
+                onChange={handleChange}
+                className={styles.fileInput}
+                multiple
+              />
+              <button
+                className={styles.closeButton}
+                onClick={() => setShowUploadFormUser(false)}
+              >
+                X
+              </button>
+              <br />
+              <button type="submit" className={styles.uploadButton}>
+                Submit
+              </button>
+            </form>
+          )}
+
           <h2>Your mission:</h2>
           {jobDescriptions.map((job, index) => (
             <div key={index}>
