@@ -18,6 +18,7 @@ const Room = () => {
   const [roomDetails, setRoomDetails] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState(null);
+  const [jobDescriptions, setJobDescriptions] = useState([]);
 
   useEffect(() => {
     // Fetch room details from the backend
@@ -52,6 +53,16 @@ const Room = () => {
         })
         .catch((error) => {
           console.error("Error fetching images:", error);
+        });
+
+      // Fetch job description for the room
+      fetch(`http://localhost:3000/room/${id}/jobs`)
+        .then((response) => response.json())
+        .then((data) => {
+          setJobDescriptions(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching job description:", error);
         });
     }
   }, [id, isAdmin]);
@@ -94,6 +105,24 @@ const Room = () => {
       })
       .catch((err) => {
         console.error("Error in file upload:", err);
+      });
+
+    // upload job description from text area
+    const description = event.target[1].value;
+    const job = { room_id: id, job: description };
+    fetch("http://localhost:3000/upload_job", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(job),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Job uploaded successfully:", data);
+      })
+      .catch((error) => {
+        console.error("Error uploading job:", error);
       });
   }
 
@@ -159,8 +188,12 @@ const Room = () => {
         </>
       ) : (
         <div className={styles.nonAdminView}>
-          <h2>You are not the admin of this room.</h2>
-          <p>Please enjoy the content shared in this room.</p>
+          <h2>Your mission:</h2>
+          {jobDescriptions.map((job, index) => (
+            <div key={index}>
+              <p>{job.job_description}</p>
+            </div>
+          ))}
         </div>
       )}
       {uploadedFileURLs.length > 0 && (

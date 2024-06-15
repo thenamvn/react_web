@@ -145,6 +145,19 @@ app.get('/room/:id/images', (req, res) => {
   });
 });
 
+app.get('/room/:id/jobs', (req, res) => {
+  const roomId = req.params.id;
+  pool.query('SELECT * FROM job WHERE room_id = ?', [roomId], (err, results) => {
+    if (err) {
+      console.error('Error fetching jobs:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+    res.json(results);
+  });
+});
+
+
 app.post('/upload', upload.array('file'), (req, res) => {
   const files = req.files;
   const room_id = req.body.room_id;
@@ -185,6 +198,18 @@ app.post('/upload', upload.array('file'), (req, res) => {
 // Serve static files from the public directory
 app.use(express.static(path.resolve(__dirname,'public')));
 
+app.post("/upload_job",(req,res)=>{
+  const room_id = req.body.room_id;
+  const job_description = req.body.job;
+  const query = 'INSERT INTO job (room_id, job_description) VALUES (?, ?)';
+  pool.query(query, [room_id, job_description], (err, result) => {
+    if (err) {
+      console.error('Error inserting into job table:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.status(200).json({ message: 'Job created successfully.' });
+  });
+});
 
 app.post("/signup", (req, res) => {
   const fullname = req.body.fullname;
