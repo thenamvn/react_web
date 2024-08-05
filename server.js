@@ -2,7 +2,7 @@
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 const express = require("express");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
@@ -20,20 +20,6 @@ const pool = mysql.createPool({
   database: process.env.DB_DATABASE,
   port: process.env.DB_PORT,
 });
-
-pool.query(
-  `
-  CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fullname VARCHAR(255) NOT NULL,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL
-  )
-`,
-  (error, results, fields) => {
-    if (error) throw error;
-  }
-);
 
 // Tạo thư mục public/uploads nếu chưa tồn tại
 const uploadDir = path.resolve(__dirname, './public/uploads');
@@ -85,7 +71,7 @@ app.post('/createroom', (req, res) => {
     return res.status(400).json({ error: 'Room ID and admin username are required.' });
   }
 
-  const query = 'INSERT INTO room (id, admin_username) VALUES (?, ?)';
+  const query = 'INSERT INTO room (room_id, admin_username) VALUES (?, ?)';
 
   pool.query(query, [id, admin_username], (err, result) => {
     if (err) {
@@ -97,15 +83,64 @@ app.post('/createroom', (req, res) => {
   });
 });
 
+app.post('/joinroom', (req, res) => {
+  const { id, username } = req.body;
+  if (!id || !username) {
+    return res.status(400).json({ error: 'Room ID and username are required.' });
+  }
+  const query = 'INSERT INTO room_users (room_id, username) VALUES (?, ?)';
+  pool.query(query, [id, username], (err, result) => {
+    if (err) {
+      console.error('Error inserting into room_users table:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.status(201).json({ message: 'Joined room successfully.' });
+  });
+});
+
+app.get('/room/:username', (req, res) => {
+  const username = req.params.username;
+
+  if (!username) {
+    res.status(400).send('Username not provided');
+    return;
+  }
+
+  // Lấy danh sách các room mà user đã tạo và các room mà user đã tham gia
+  const query = `
+    SELECT r.room_id, 'hostedroom' as role
+    FROM room r
+    WHERE r.admin_username = ?
+
+    UNION
+
+    SELECT ru.room_id, 'joinedroom' as role
+    FROM room_users ru
+    WHERE ru.username = ?
+  `;
+
+  pool.query(query, [username, username], (err, results) => {
+    if (err) {
+      console.error('Error fetching rooms:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    res.json({ rooms: results });
+  });
+});
+
+
+
 // Get room details by ID
 app.get('/room/:id', (req, res) => {
   const roomId = req.params.id;
 
   const query = `
-    SELECT r.id, r.admin_username
+    SELECT r.room_id, r.admin_username
     FROM room r
     JOIN users u ON r.admin_username = u.username
-    WHERE r.id = ?
+    WHERE r.room_id = ?
   `;
 
   pool.query(query, [roomId], (err, results) => {
@@ -272,7 +307,7 @@ app.post("/login", (req, res) => {
       } else {
         res.json({
           success: false,
-          message: "Incorrect Username and/or Password!",
+          message: "Username not found! Please register!",
         });
       }
     }

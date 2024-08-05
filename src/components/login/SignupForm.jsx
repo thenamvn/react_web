@@ -39,64 +39,66 @@ const SignupForm = () => {
   }
 
   return (
-    <div className={styles.signupContainer}>
-    <form id="signup-form" onSubmit={handleSubmit} className={styles.loginForm}>
-      <ProfilePicture />
-      <br />
-      <div className={styles.inputContainer}>
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={fullname}
-          onChange={(e) => setFullname(e.target.value)}
-        />
-        {errors.fullname && <div className={styles.errorMessage}>{errors.fullname}</div>}
+    <div className={styles.container}>
+      <div className={styles.signupContainer}>
+        <form id="signup-form" onSubmit={handleSubmit} className={styles.loginForm}>
+          <ProfilePicture />
+          <br />
+          <div className={styles.inputContainer}>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={fullname}
+              onChange={(e) => setFullname(e.target.value)}
+            />
+            {errors.fullname && <div className={styles.errorMessage}>{errors.fullname}</div>}
+          </div>
+          <br />
+          <div className={styles.inputContainer}>
+            <input
+              type="text"
+              placeholder="New Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+            />
+            {errors.username && <div className={styles.errorMessage}>{errors.username}</div>}
+          </div>
+          <br />
+          <div className={styles.inputContainer}>
+            <input
+              type="password"
+              placeholder="New Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {errors.password && <div className={styles.errorMessage}>{errors.password}</div>}
+            <br />
+          </div>
+          <br />
+          <div className={styles.inputContainer}>
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e, handleSubmit)}
+            />
+            {errors.confirmPassword && <div className={styles.errorMessage}>{errors.confirmPassword}</div>}
+            <br />
+          </div>
+          <button type="submit" disabled={isSubmitting} className={styles.loginButton}>
+            <span className={styles.loginButtonText}>Đăng kí</span>
+          </button>
+          <p className={styles.noAccount}>
+            Đã có tài khoản ?
+            <a onClick={navigateToLoginForm} className={styles.link}>
+              {" "}
+              Đăng nhập
+            </a>
+          </p>
+        </form>
       </div>
-      <br />
-      <div className={styles.inputContainer}>
-        <input
-          type="text"
-          placeholder="New Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          autoComplete="username"
-        />
-        {errors.username && <div className={styles.errorMessage}>{errors.username}</div>}
-      </div>
-      <br />
-      <div className={styles.inputContainer}>
-        <input
-          type="password"
-          placeholder="New Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {errors.password && <div className={styles.errorMessage}>{errors.password}</div>}
-        <br />
-      </div>
-      <br />
-      <div className={styles.inputContainer}>
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          onKeyDown={(e) => handleKeyDown(e, handleSubmit)}
-        />
-        {errors.confirmPassword && <div className={styles.errorMessage}>{errors.confirmPassword}</div>}
-        <br />
-      </div>
-      <button type="submit" disabled={isSubmitting} className={styles.loginButton}>
-        <span className={styles.loginButtonText}>Đăng kí</span>
-      </button>
-      <p className={styles.noAccount}>
-        Đã có tài khoản ?
-        <a onClick={navigateToLoginForm} className={styles.link}>
-          {" "}
-          Đăng nhập
-        </a>
-      </p>
-    </form>
     </div>
   );
 };

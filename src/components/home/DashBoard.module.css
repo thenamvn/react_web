@@ -1,0 +1,167 @@
+.containerfullwidth {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.bg_dashboard {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+  width: 385px;
+  height: 670px;
+  max-height: 90vh;
+  margin: 0;
+  background-image: url("../../../public/images/bg_dashboard.jpg");
+  background-size: cover;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  /* Enable scrolling if content overflows */
+}
+
+.container {
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Background transparency */
+  top: 0px;
+  padding: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  width: 365px;
+  
+  text-align: center;
+  /* Center-align text inside the container */
+}
+.container h1{
+  color: #fff;
+}
+
+.create_game_btn,
+.join_game_btn {
+  box-shadow: 3px 3px rgba(0, 0, 0, 0.5);
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.create_game_btn:hover,
+.join_game_btn:hover {
+  background-color: #0056b3;
+}
+
+.create_game_btn:active,
+.join_game_btn:active {
+  box-shadow: none;
+  transform: translate(3px, 3px);
+}
+
+.inputRoomCode {
+  width: 50vw;
+  padding: 10px;
+  margin-right: 10px;
+  border-radius: 10px;
+  border: none;
+  background-color: rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+
+}
+
+.inputRoomCode:focus,
+.inputRoomCode:hover {
+  outline: none;
+  border-color: rgba(129, 140, 248);
+  background-color: #fff;
+  box-shadow: 0 0 0 5px rgb(129 140 248 / 30%);
+}
+
+.roomClass {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.hostroom,
+.joinroom {
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Background transparency */
+  padding: 10px;
+  /* border-radius: 10px; */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  /* Centering */
+  width: 365px;
+  max-height: 200;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.hostroom h1,
+.joinroom h1 {
+  color: #fff ;
+}
+.scrollableList {
+  max-height: 150px; /* Adjust height as needed */
+  overflow-y: auto;
+  width: 100%;
+}
+
+.scrollableList ul {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+.scrollableList li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.scrollableList li:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Scrollbar styling for WebKit (Chrome, Safari) */
+.scrollableList::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.scrollableList::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2); /* Track background color */
+  border-radius: 10px;
+}
+
+.scrollableList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.5); /* Thumb color */
+  border-radius: 10px;
+}
+
+.scrollableList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.7); /* Thumb color on hover */
+}
+
+/* Scrollbar styling for Firefox */
+.scrollableList {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.5) rgba(0, 0, 0, 0.2);
+}
+
+/* Scrollbar styling for Edge and IE */
+.scrollableList {
+  -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
+}
+
+.scrollableList::-ms-scrollbar {
+  display: none; /* Hide scrollbar for IE and Edge */
+}
