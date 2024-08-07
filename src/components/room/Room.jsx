@@ -12,16 +12,16 @@ import PostAddIcon from "@mui/icons-material/PostAdd";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import AddTaskIcon from "@mui/icons-material/AddTask";
-
+import Slideshow from "../slideshow/slide"
 
 
 const Room = () => {
   const { id } = useParams();
   const [files, setFiles] = useState([]);
   const [uploadedFileURLs, setUploadedFileURLs] = useState([]);
-  const [isSliderVisible, setIsSliderVisible] = useState(true);
   const [showRoomInfo, setShowRoomInfo] = useState(false);
   const [showUploadFormUser, setShowUploadFormUser] = useState(false);
+  // Add state variables for the room details, admin status, error, job descriptions, and other necessary data
   const [roomDetails, setRoomDetails] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState(null);
@@ -34,53 +34,61 @@ const Room = () => {
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedUserImages, setSelectedUserImages] = useState([]);
 
-
   useEffect(() => {
-    // Fetch room details from the backend
-    fetch(`http://localhost:3000/room/${id}`)
-      .then(async (response) => {
+    const fetchRoomDetailsAndResources = async () => {
+      try {
+        // Fetch room details
+        const response = await fetch(`http://localhost:3000/room/${id}/info`);
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(
             `Network response was not ok: ${response.status} - ${errorText}`
           );
         }
-        return response.json();
-      })
-      .then((data) => {
+        const data = await response.json();
         setRoomDetails(data);
-        setIsAdmin(data.admin_username === localStorage.getItem("username"));
-      })
-      .catch((error) => {
-        console.error("Error fetching room details:", error);
+        const isAdmin = data.admin_username === localStorage.getItem("username");
+        setIsAdmin(isAdmin);
+        console.log("isAdmin:", isAdmin);
+
+        // If admin, fetch submitted users
+        if (isAdmin) {
+          const submittedUsersResponse = await fetch(`http://localhost:3000/room/${id}/submited`);
+          const submittedUsers = await submittedUsersResponse.json();
+          setSubmittedUsers(Array.isArray(submittedUsers) ? submittedUsers : []); // Ensure it's an array
+        }
+
+
+        // If not admin, fetch images and jobs
+        if (!isAdmin) {
+          const imagesResponse = await fetch(`http://localhost:3000/room/${id}/images`);
+          const imagesData = await imagesResponse.json();
+          setUploadedFileURLs(imagesData.map((image) => image.image_path));
+
+          const jobsResponse = await fetch(`http://localhost:3000/room/${id}/jobs`);
+          const jobsData = await jobsResponse.json();
+          setJobDescriptions(jobsData);
+
+          const joinRoom = await fetch(`http://localhost:3000/joinroom`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              id: id,
+              username: localStorage.getItem("username")
+            })
+          });
+          console.log("Join room response:", joinRoom);
+        }
+      } catch (error) {
+        console.error("Error fetching room details or resources:", error);
         setError(error.message);
-      });
+      }
+    };
+
+    fetchRoomDetailsAndResources();
   }, [id]);
-
-  useEffect(() => {
-    // Only fetch images if the current user is not an admin
-    if (!isAdmin) {
-      // Fetch images for the room
-      fetch(`http://localhost:3000/room/${id}/images`)
-        .then((response) => response.json())
-        .then((data) => {
-          setUploadedFileURLs(data.map((image) => image.image_path));
-        })
-        .catch((error) => {
-          console.error("Error fetching images:", error);
-        });
-
-      // Fetch job description for the room
-      fetch(`http://localhost:3000/room/${id}/jobs`)
-        .then((response) => response.json())
-        .then((data) => {
-          setJobDescriptions(data);
-        })
-        .catch((error) => {
-          console.error("Error fetching job description:", error);
-        });
-    }
-  }, [id, isAdmin]);
 
   function closeMissionUpload() {
     setShowUploadFormAdmin(false);
@@ -92,9 +100,21 @@ const Room = () => {
     setSelectedFiles([]);
   };
 
-  function handleUserClick(userId) {
-    //
-  };
+  async function handleUserClick(userId) {
+    const room_id = id;
+    
+    try {
+      const response = await fetch(`http://localhost:3000/room/${room_id}/userimages?username=${userId}`);
+      const imagesData = await response.json();
+      const images = imagesData.map((image) => image.image_path);
+      
+      setSelectedUserImages(images);
+      setSelectedUser(userId);
+      setShowSubmitedForm(true);
+    } catch (error) {
+      console.error('Error fetching user images:', error);
+    }
+  }
 
   const sliderSettings = {
     centerMode: true,
@@ -182,6 +202,7 @@ const Room = () => {
 
   function handleChange(event) {
     const filesArray = Array.from(event.target.files);
+    setSelectedFiles(filesArray);
     const config = {
       quality: 0.75,
       maxWidth: 1920,
@@ -205,6 +226,7 @@ const Room = () => {
     if (!files.length) {
       return;
     }
+    setSelectedFiles([]);
     const formData = new FormData();
     files.forEach((file) => formData.append("file", file.blob, file.name));
     formData.append("room_id", id); // Assuming room_id is available in this scope
@@ -220,24 +242,49 @@ const Room = () => {
         console.error("Error in file upload:", err);
       });
 
-    // upload job description from text area
-    const description = event.target[1].value;
-    const job = { room_id: id, job: description };
-    fetch("http://localhost:3000/upload_job", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(job),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Job uploaded successfully:", data);
+    
+    if (isAdmin) {
+
+      // upload job description from text area
+      const job = { room_id: id, job: document.getElementById("jobDescription").value, job_owner: localStorage.getItem("username") };
+      console.log("Job to upload:", job);
+
+      fetch("http://localhost:3000/upload_job", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(job),
       })
-      .catch((error) => {
-        console.error("Error uploading job:", error);
-      });
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Job uploaded successfully:", data);
+        })
+        .catch((error) => {
+          console.error("Error uploading job:", error);
+        });
+      } else {
+        fetch("http://localhost:3000/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: id,
+            username: localStorage.getItem("username"),
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Submitted successfully:", data);
+          })
+          .catch((error) => {
+            console.error("Error submitting:", error);
+          });
+      }
   }
+
+
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -249,231 +296,237 @@ const Room = () => {
 
   return (
     <div className={styles.bg_room}>
-      <h1 className={styles.roomTitle}>Welcome to room {id}</h1>
-      {isAdmin ? (
-        <>
-          {/* Admin view */}
-          <div className={styles.adminView}>
-            <button
-              className={styles.shareButton}
-              onClick={() => setShowRoomInfo(true)}
-            >
-              Share
-            </button>
+      <div className={styles.room}>
+        <h1 className={styles.roomTitle}>Welcome to room {id}</h1>
+        {isAdmin ? (
+          <>
+            {/* Admin view */}
+            <div className={styles.adminView}>
+              <button
+                className={styles.shareButton}
+                onClick={() => setShowRoomInfo(true)}
+              >
+                Share
+              </button>
+              <button
+                className={styles.uploadButton}
+                onClick={() => setShowUploadFormAdmin(true)}
+              >
+                <PostAddIcon />
+              </button>
+            </div>
+            {showRoomInfo && (
+              <div className={styles.roomInfo}>
+                <button
+                  className={styles.closeButton}
+                  onClick={() => setShowRoomInfo(false)}
+                >
+                  X
+                </button>
+                <br />
+                <p className={styles.roomLink}>
+                  Room Link:{" "}
+                  <a href={window.location.href}>{window.location.href}</a>
+                  <br />
+                  Scan QR code to join the room
+                </p>
+                <br />
+                <div className={styles.qrCode}>
+                  <QRCode value={window.location.href} />
+                </div>
+                <button
+                  className={styles.copyButton}
+                  onClick={() => copyToClipboard(window.location.href)}
+                >
+                  Copy Link
+                </button>
+                {showTooltip && (
+                  <span className={styles.tooltip}>Copied to Clipboard!</span>
+                )}
+              </div>
+            )}
+            {showUploadFormAdmin && ( // Use the state variable to conditionally render this form
+              <form className={styles.uploadForm} onSubmit={handleSubmit}>
+                <h1>Misson Upload</h1>
+                <button // Close button to hide the form
+                  className={styles.closeButton}
+                  onClick={closeMissionUpload}
+                >
+                  <CloseIcon />
+                </button>
+                <div className={styles.fileUploadContainer}>
+                  <input
+                    type="file"
+                    onChange={handleChange}
+                    className={styles.fileInput}
+                    multiple
+                    id="fileInput"
+                    style={{ display: "none" }} // Hide the actual input
+                  />
+                  <label htmlFor="fileInput" className={styles.fileInputLabel}>
+                    <i className="fas fa-upload"></i> Upload Files
+                  </label>
+                  {selectedFiles.length > 0 && (
+                    <div className={styles.fileDetails}>
+                      {selectedFiles.length} file(s) selected
+                    </div>
+                  )}
+                </div>
+                <br />
+                <textarea
+                  id="jobDescription"
+                  placeholder="Description"
+                  className={styles.descriptionInput}
+                />
+                <br />
+                <button type="submit" className={styles.shareButton}>
+                  <SendIcon />
+                </button>
+              </form>
+            )}
+            {/* Leaderboard */}
+            <div className={styles.leaderboard}>
+              <h2>Submited Users</h2>
+              <div className={styles.leaderboardHeader}>
+                <ul>
+                  {submittedUsers.map((user, index) => (
+                    <li key={index} onClick={() => handleUserClick(user.username)}>
+                      <span>{user.username}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            {showSubmitedForm && (
+              <div className={styles.uploadedImagesForm}>
+                <button
+                  className={styles.closeButton}
+                  onClick={() => setShowSubmitedForm(false)}
+                >
+                  X
+                </button>
+                <h2>Images uploaded by {selectedUser}</h2>
+                <Slider {...sliderSettings}>
+                  {selectedUserImages.map((url, index) => (
+                    <div key={index}>
+                      <img
+                        src={url}
+                        alt={`Uploaded content ${index + 1}`}
+                        className={styles.uploadedImage}
+                        style={{
+                          width: "80vw",
+                          height: "auto",
+                          maxWidth: "80vw", // Keep this limit as the image has a maximum quality of 1080p
+                          maxHeight: "50vh",
+                          border: "none",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </Slider>
+                <button
+                  className={styles.acceptButton}
+                // onClick={() => handleAccept(imageUrl)}
+                >
+                  Accept
+                </button>
+                <button
+                  className={styles.denyButton}
+                // onClick={() => handleDeny(imageUrl)}
+                >
+                  Deny
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className={styles.nonAdminView}>
+            {/* Non-admin view */}
             <button
               className={styles.uploadButton}
-              onClick={() => setShowUploadFormAdmin(true)}
+              onClick={() => setShowUploadFormUser(true)}
             >
-              <PostAddIcon />
+              <AddTaskIcon />
             </button>
-          </div>
-          {showRoomInfo && (
-            <div className={styles.roomInfo}>
-              <button
-                className={styles.closeButton}
-                onClick={() => setShowRoomInfo(false)}
-              >
-                X
-              </button>
-              <br />
-              <p className={styles.roomLink}>
-                Room Link:{" "}
-                <a href={window.location.href}>{window.location.href}</a>
+            {showUploadFormUser && (
+              <form className={styles.uploadForm} onSubmit={handleSubmit}>
+                <h1>Submit Job</h1>
+                <div className={styles.fileUploadContainer}>
+                  <input
+                    type="file"
+                    onChange={handleChange}
+                    className={styles.fileInput}
+                    multiple
+                    id="fileInput"
+                    style={{ display: "none" }} // Hide the actual input
+                  />
+                  <label htmlFor="fileInput" className={styles.fileInputLabel}>
+                    <i className="fas fa-upload"></i> Upload Files
+                  </label><br />
+                  {selectedFiles.length > 0 && (
+                    <div className={styles.fileDetails}>
+                      {selectedFiles.length} file(s) selected
+                    </div>
+                  )}
+                </div>
+                <button
+                  className={styles.closeButton}
+                  onClick={UserShowUploadForm}
+                >
+                  <CloseIcon />
+                </button>
                 <br />
-                Scan QR code to join the room
-              </p>
-              <br />
-              <div className={styles.qrCode}>
-                <QRCode value={window.location.href} />
-              </div>
-              <button
-                className={styles.copyButton}
-                onClick={() => copyToClipboard(window.location.href)}
-              >
-                Copy Link
-              </button>
-              {showTooltip && (
-                <span className={styles.tooltip}>Copied to Clipboard!</span>
-              )}
-            </div>
-          )}
-          {showUploadFormAdmin && ( // Use the state variable to conditionally render this form
-            <form className={styles.uploadForm} onSubmit={handleSubmit}>
-              <h1>Misson Upload</h1>
-              <button // Close button to hide the form
-                className={styles.closeButton}
-                onClick={closeMissionUpload}
-              >
-                <CloseIcon />
-              </button>
-              <div className={styles.fileUploadContainer}>
-                <input
-                  type="file"
-                  onChange={handleChange}
-                  className={styles.fileInput}
-                  multiple
-                  id="fileInput"
-                  style={{ display: "none" }} // Hide the actual input
-                />
-                <label htmlFor="fileInput" className={styles.fileInputLabel}>
-                  <i className="fas fa-upload"></i> Upload Files
-                </label>
-                {selectedFiles.length > 0 && (
-                  <div className={styles.fileDetails}>
-                    {selectedFiles.length} file(s) selected
-                  </div>
-                )}
-              </div>
-              <br />
-              <textarea
-                placeholder="Description"
-                className={styles.descriptionInput}
-              />
-              <br />
-              <button type="submit" className={styles.shareButton}>
-                <SendIcon />
-              </button>
-            </form>
-          )}
-          {/* Leaderboard */}
-          <div className={styles.leaderboard}>
-            <h2>Submited Users</h2>
-            <ul>
-              {submittedUsers.map((user, index) => (
-                <li key={index} onClick={() => handleUserClick(user.id)}>
-                  {user.name} ({user.id})
-                </li>
+                <button type="submit" className={styles.shareButton}>
+                  <SendIcon />
+                </button>
+              </form>
+            )}
+            <div className={styles.missionDiv}>
+              <h2>Your mission:</h2>
+              {jobDescriptions.map((job, index) => (
+                <div key={index}>
+                  <p>{job}</p>
+                </div>
               ))}
-            </ul>
-          </div>
-          {showSubmitedForm && (
-            <div className={styles.uploadedImagesForm}>
-              <button
-                className={styles.closeButton}
-                onClick={() => setShowSubmitedForm(false)}
-              >
-                X
-              </button>
-              <h2>Images uploaded by {selectedUser}</h2>
-              <Slider {...sliderSettings}>
-                {selectedUserImages.map((url, index) => (
-                  <div key={index}>
-                    <img
-                      src={url}
-                      alt={`Uploaded content ${index + 1}`}
-                      className={styles.uploadedImage}
-                      style={{
-                        width: "80vw",
-                        height: "auto",
-                        maxWidth: "80vw", // Keep this limit as the image has a maximum quality of 1080p
-                        maxHeight: "50vh",
-                        border: "none",
-                      }}
-                    />
-                  </div>
-                ))}
-              </Slider>
-              <button
-                className={styles.acceptButton}
-                // onClick={() => handleAccept(imageUrl)}
-              >
-                Accept
-              </button>
-              <button
-                className={styles.denyButton}
-                // onClick={() => handleDeny(imageUrl)}
-              >
-                Deny
-              </button>
             </div>
-          )}
-        </>
-      ) : (
-        <div className={styles.nonAdminView}>
-          {/* Non-admin view */}
-          <button
-            className={styles.uploadButton}
-            onClick={() => setShowUploadFormUser(true)}
+          </div>
+        )}
+        {uploadedFileURLs.length > 0 && (
+          <div className={styles.sliderContainer}>
+            {/* <Slider {...sliderSettings}
           >
-            <AddTaskIcon />
-          </button>
-          {showUploadFormUser && (
-            <form className={styles.uploadForm} onSubmit={handleSubmit}>
-              <h1>Submit Job</h1>
-              <div className={styles.fileUploadContainer}>
-                <input
-                  type="file"
-                  onChange={handleChange}
-                  className={styles.fileInput}
-                  multiple
-                  id="fileInput"
-                  style={{ display: "none" }} // Hide the actual input
-                />
-                <label htmlFor="fileInput" className={styles.fileInputLabel}>
-                  <i className="fas fa-upload"></i> Upload Files
-                </label><br />
-                {selectedFiles.length > 0 && (
-                  <div className={styles.fileDetails}>
-                    {selectedFiles.length} file(s) selected
-                  </div>
-                )}
-              </div>
-              <button
-                className={styles.closeButton}
-                onClick={UserShowUploadForm}
-              >
-                <CloseIcon />
-              </button>
-              <br />
-              <button type="submit" className={styles.shareButton}>
-                <SendIcon />
-              </button>
-            </form>
-          )}
-          <div className={styles.missionDiv}>
-            <h2>Your mission:</h2>
-            {jobDescriptions.map((job, index) => (
+            {uploadedFileURLs.map((url, index) => (
               <div key={index}>
-                <p>{job}</p>
+                <img
+                  src={url}
+                  alt={`Uploaded content ${index + 1}`}
+                  className={styles.uploadedImage}
+                  style={{
+                    width: "80vw",
+                    height: "auto",
+                    maxWidth: "80vw", // Giữ nguyên giới hạn này vì ảnh có chất lượng tối đa là 1080p
+                    maxHeight: "50vh",
+                    border: "none",
+                  }}
+                />
               </div>
             ))}
+          </Slider> */}
+            <Slideshow images={uploadedFileURLs} />
           </div>
-        </div>
-      )}
-      {uploadedFileURLs.length > 0 && (
-      <div className={styles.sliderContainer}>
-        <Slider {...sliderSettings}
-        >
-          {uploadedFileURLs.map((url, index) => (
-            <div key={index}>
-              <img
-                src={url}
-                alt={`Uploaded content ${index + 1}`}
-                className={styles.uploadedImage}
-                style={{
-                  width: "80vw",
-                  height: "auto",
-                  maxWidth: "80vw", // Giữ nguyên giới hạn này vì ảnh có chất lượng tối đa là 1080p
-                  maxHeight: "50vh",
-                  border: "none",
-                }}
-              />
-            </div>
-          ))}
-        </Slider>
-      </div>
-      )}
+        )}
 
-      {/* Message for non-admins when no content is available */}
-      {!isAdmin && uploadedFileURLs.length === 0 && (
-        <div className={styles.noContentMessage}>
-          <p>No content has been shared in this room yet.</p>
-          <p>
-            Please check back later or ask the room admin to upload some
-            content.
-          </p>
-        </div>
-      )}
+        {/* Message for non-admins when no content is available */}
+        {!isAdmin && uploadedFileURLs.length === 0 && (
+          <div className={styles.noContentMessage}>
+            <p>No content has been shared in this room yet.</p>
+            <p>
+              Please check back later or ask the room admin to upload some
+              content.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

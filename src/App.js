@@ -6,7 +6,16 @@ import DashBoard from './components/home/DashBoard';
 import PrivateRoute from './components/login/PrivateRoute';
 import Room from './components/room/Room';
 import { BottomNavigation, BottomNavigationAction } from '@mui/material';
+//admin
+import AdminLogin from './components/room_admin/login/adminLogin';
+import Panel from './components/room_admin/dashboardadmin/dashboard';
+import PrivateRouteAdmin from './components/room_admin/login/PrivateRouteAdmin';
+import GameRoomManager from './components/room_admin/room_manager/GameRoomManager';
+import UserManager from './components/room_admin/usermanager/UserManager';
+import ProfileForm from './components/room_admin/profile/ProfileForm';
+// Import the styles
 import styles from "./App.module.css";
+// Import icons
 import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -16,7 +25,7 @@ const NavigationComponent = () => {
   const location = useLocation(); // Now used within the context of <Router>
 
   const shouldShowBottomNavigation = () => {
-    const hideOnRoutes = ['/login', '/signup','/'];
+    const hideOnRoutes = ['/login', '/signup','/','/admin','/admin/dashboard','/admin/user-manager','/admin/room-manager','/admin/profile'];
     return !hideOnRoutes.includes(location.pathname);
   };
   
@@ -52,6 +61,11 @@ const App = () => {
     <Router>
         <Routes>
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<PrivateRouteAdmin component={Panel} />} />
+          <Route path='/admin/room-manager' element={<PrivateRouteAdmin component={GameRoomManager} />} />
+          <Route path='/admin/user-manager' element={<PrivateRouteAdmin component={UserManager} />} />
+          <Route path='/admin/profile' element={<PrivateRouteAdmin component={ProfileForm} />} />
           <Route path="/signup" element={<SignupForm />} />
           <Route path="/dashboard" element={<PrivateRoute component={DashBoard} />} />
           <Route path="/room/:id" element={<PrivateRoute component={Room} />} />

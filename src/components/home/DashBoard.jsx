@@ -10,7 +10,7 @@ const DashBoard = () => {
   const [JoinRoom, setJoinedRooms] = useState([]);
 
   // Use the functions with the necessary arguments
-  const handleCreateGame = () => createGame( navigate);
+  const handleCreateGame = () => createGame(navigate);
 
   useEffect(() => {
     const username = localStorage.getItem("username");

@@ -6,38 +6,77 @@
   bottom: 0; /* Stretch the button to the bottom of the page */
   width: 100vw; /* Full width */
   height: 100vh; /* Full height */
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
 }
+
 
 .bg_room h1 {
   text-align: center;
 }
 
-.leaderboardItem {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 2px solid #ccc; /* Bo viền dưới */
-  transition: transform 0.2s ease-in-out; /* Hiệu ứng transition */
-  background-color: #f9f9f9; /* Màu nền */
+.leaderboard {
+  background-color: #f9f9f9;
   border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 375px;
+  margin: 0 auto;
 }
 
-.leaderboardItem:hover {
-  transform: scale(1.1); /* Phóng to khi hover */
-  background-color: #e0e0e0; /* Màu nền khi hover */
+.leaderboard h2 {
+  text-align: center;
+  color: #333;
+  font-family: 'Arial', sans-serif;
+  margin-bottom: 20px;
 }
 
-/* Hình ảnh người dùng */
-.leaderboardItem img {
-  width: 40px; /* Kích thước ảnh */
-  height: 40px;
-  border-radius: 50%; /* Để ảnh tròn */
-  margin-right: 10px; /* Khoảng cách giữa ảnh và tên */
+.leaderboardHeader ul {
+  list-style: none;
+  padding: 0;
 }
 
-/* Tên người dùng */
-.leaderboardItem .name {
-  flex: 1; /* Để tên căn chỉnh đúng vị trí */
+.leaderboardHeader li {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leaderboardHeader li:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboardHeader li:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboardHeader li span {
+  font-weight: bold;
+  color: #555;
+}
+
+.room {
+  /* room được hiển thị ở giữa trang */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 375px;
+  height: 670px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-height: 90vh;
+  border: 1px solid #ccc;
 }
 
 .shareButton {

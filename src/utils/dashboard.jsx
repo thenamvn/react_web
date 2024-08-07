@@ -22,7 +22,7 @@ export const createGame = (navigate) => {
 
 export const joinGame = (id,navigate) => {
   // Fetch room details from the backend
-  fetch(`http://localhost:3000/room/${id}`)
+  fetch(`http://localhost:3000/room/${id}/info`)
   .then(async (response) => {
     if (!response.ok) {
       const errorText = await response.text();
@@ -34,8 +34,7 @@ export const joinGame = (id,navigate) => {
   })
   .then((data) => {
     if (data.admin_username === localStorage.getItem("username")) {
-      // If the user is the admin, redirect to the admin page
-      navigate(`/admin/${id}`);
+      navigate(`/room/${id}`);
     }
     else {
       axios.post("http://localhost:3000/joinroom", {

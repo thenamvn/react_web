@@ -32,8 +32,13 @@ const handleLogin = (event, navigate) => {
           localStorage.removeItem("password");
         }
 
-        // Navigate to the dashboard
-        navigate('/dashboard');
+        const redirectPath = localStorage.getItem("redirectPath");
+        if (redirectPath) {
+          localStorage.removeItem("redirectPath");
+          navigate(redirectPath);
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         alert(data.message);
       }

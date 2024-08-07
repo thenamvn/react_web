@@ -1,9 +1,9 @@
 // src/components/login/PrivateRoute.js
 import React, { useEffect, useState } from 'react';
 import { Navigate ,useLocation} from 'react-router-dom';
-import verifyToken from '../../utils/verify';
+import verifyToken from './verify';
 
-const PrivateRoute = ({ component: Component, ...rest }) => {
+const PrivateRouteAdmin = ({ component: Component, ...rest }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const location = useLocation();
 
@@ -18,10 +18,10 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 
   if (!isAuthenticated) {
     localStorage.setItem('redirectPath', location.pathname);
-    return <Navigate to="/login" />;
+    return <Navigate to="/admin" />;
   }
 
   return <Component {...rest}/>;
 };
 
-export default PrivateRoute;
+export default PrivateRouteAdmin;

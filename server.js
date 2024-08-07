@@ -133,7 +133,7 @@ app.get('/room/:username', (req, res) => {
 
 
 // Get room details by ID
-app.get('/room/:id', (req, res) => {
+app.get('/room/:id/info', (req, res) => {
   const roomId = req.params.id;
 
   const query = `
@@ -159,6 +159,47 @@ app.get('/room/:id', (req, res) => {
   });
 });
 
+app.get('/room/:id/submited', (req, res) => {
+  const roomId = req.params.id;
+
+  const query = `
+    SELECT su.username
+    FROM submitedusers su
+    WHERE su.room_id = ?
+  `;
+
+  pool.query(query, [roomId], (err, results) => {
+    if (err) {
+      console.error('Error fetching submitted users:', err);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'No submitted users found for this room' });
+      return;
+    }
+
+    res.json(results);
+  });
+});
+
+app.post('/submit', (req, res) => {
+  const { id, username } = req.body;
+  if (!id || !username) {
+    return res.status(400).json({ error: 'Room ID and username are required.' });
+  }
+  const query = 'INSERT INTO submitedusers (room_id, username) VALUES (?, ?)';
+  pool.query(query, [id, username], (err, result) => {
+    if (err) {
+      console.error('Error inserting into room table:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.status(201).json({ message: 'Submited.' });
+  });
+}
+);
+
 // Get images for a room uploaded by the admin
 app.get('/room/:id/images', (req, res) => {
   const roomId = req.params.id;
@@ -166,7 +207,7 @@ app.get('/room/:id/images', (req, res) => {
   const query = `
     SELECT i.image_id, i.room_id, i.uploader_username, i.image_path, i.uploaded_at
     FROM images i
-    JOIN room r ON i.room_id = r.id
+    JOIN room r ON i.room_id = r.room_id
     WHERE i.room_id = ? AND i.uploader_username = r.admin_username
   `;
 
@@ -178,6 +219,21 @@ app.get('/room/:id/images', (req, res) => {
     }
     res.json(results);
   });
+});
+
+// Get images for a room uploaded by user
+app.get('/room/:id/userimages', (req, res) => {
+  const roomId = req.params.id;
+  const username = req.query.username;
+  pool.query('SELECT * FROM images WHERE room_id = ? AND uploader_username = ?', [roomId, username], (err, results) => {
+    if (err) {
+      console.error('Error fetching images:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+    res.json(results);
+  }
+  );
 });
 
 app.get('/room/:id/jobs', (req, res) => {
@@ -203,7 +259,7 @@ app.post('/upload', upload.array('file'), (req, res) => {
   }
 
   // Check if the room exists
-  pool.query('SELECT * FROM room WHERE id = ?', [room_id], (err, results) => {
+  pool.query('SELECT * FROM room WHERE room_id = ?', [room_id], (err, results) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ error: 'Room not exist' });
@@ -236,8 +292,9 @@ app.use(express.static(path.resolve(__dirname,'public')));
 app.post("/upload_job",(req,res)=>{
   const room_id = req.body.room_id;
   const job_description = req.body.job;
-  const query = 'INSERT INTO job (room_id, job_description) VALUES (?, ?)';
-  pool.query(query, [room_id, job_description], (err, result) => {
+  const job_owner = req.body.job_owner;
+  const query = 'INSERT INTO job (room_id, job_description, job_owner) VALUES (?, ?, ?)';
+  pool.query(query, [room_id, job_description, job_owner], (err, result) => {
     if (err) {
       console.error('Error inserting into job table:', err);
       return res.status(500).json({ error: 'Database error' });
@@ -314,6 +371,49 @@ app.post("/login", (req, res) => {
   );
 });
 
+app.post("/adminlogin", (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  pool.query(
+    "SELECT * FROM admin_account WHERE username = ?",
+    [username],
+    function (error, results, fields) {
+      if (error) throw error;
+
+      if (results.length > 0) {
+        if (password === results[0].password) {
+          // Create a token
+          const token = jwt.sign(
+            { username: username },
+            process.env.SECRET_KEY,
+            { expiresIn: "7d" }
+          );
+
+          // Send success message along with the token
+          res.json({
+            success: true,
+            message: "Logged in successfully",
+            token: token,
+            fullname: results[0].fullname,
+            username: results[0].username,
+          });
+        } else {
+          res.json({
+            success: false,
+            message: "Incorrect Username and/or Password!",
+          });
+        }
+      } else {
+        res.json({
+          success: false,
+          message: "Username not found! Please register!",
+        });
+      }
+    }
+  );
+});
+
 app.post("/verify-token", (req, res) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -327,9 +427,257 @@ app.post("/verify-token", (req, res) => {
       return res.json({ success: false, message: "Token not valid" }); // If the token is not valid, return an error message
     }
 
-    return res.json({ success: true, message: "Token is valid" }); // If the token is valid, return a success message
+    return res.json({ success: true, message: "Token is valid",user }); // If the token is valid, return a success message
   });
 });
+
+//admin
+// Tạo endpoint để lấy danh sách các phòng
+app.get('/admin/roommanager', (req, res) => {
+  const query = `
+    SELECT 
+      room.room_id, 
+      room.admin_username AS room_owner, 
+      users.fullname AS admin_fullname,
+      COUNT(room_users.username) AS room_members 
+    FROM room 
+    LEFT JOIN room_users ON room.room_id = room_users.room_id 
+    LEFT JOIN users ON room.admin_username = users.username
+    GROUP BY room.room_id, room.admin_username, users.fullname;
+  `;
+
+  pool.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+});
+
+// lấy thông tin các users
+app.get('/admin/users', (req, res) => {
+  const query = `
+    SELECT 
+      u.fullname, 
+      u.username, 
+      (SELECT COUNT(*) FROM room_users ru WHERE ru.username = u.username) AS joined_rooms,
+      (SELECT COUNT(*) FROM room r WHERE r.admin_username = u.username) AS created_rooms
+    FROM users u;
+  `;
+  pool.query(query, (err, results) => {
+    if (err) throw err;
+    res.json(results);
+  });
+});
+
+// Delete a room and all related data
+app.delete('/delete/room/:id', (req, res) => {
+  const roomId = req.params.id;
+
+  // Start a transaction
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting connection:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    connection.beginTransaction(err => {
+      if (err) {
+        console.error('Error starting transaction:', err);
+        res.status(500).send('Server error');
+        return;
+      }
+
+      // Get image paths from images table
+      connection.query('SELECT image_path FROM images WHERE room_id = ?', [roomId], (err, results) => {
+        if (err) {
+          return connection.rollback(() => {
+            console.error('Error fetching images:', err);
+            res.status(500).send('Server error');
+          });
+        }
+
+        // Delete image files from file system
+        results.forEach(row => {
+          const imagePath = path.join(__dirname, 'public', row.image_path);
+          fs.unlink(imagePath, err => {
+            if (err) {
+              console.error('Error deleting image file:', err);
+            }
+          });
+        });
+
+        // Delete from images table
+        connection.query('DELETE FROM images WHERE room_id = ?', [roomId], (err, results) => {
+          if (err) {
+            return connection.rollback(() => {
+              console.error('Error deleting images:', err);
+              res.status(500).send('Server error');
+            });
+          }
+
+          // Delete from job table
+          connection.query('DELETE FROM job WHERE room_id = ?', [roomId], (err, results) => {
+            if (err) {
+              return connection.rollback(() => {
+                console.error('Error deleting jobs:', err);
+                res.status(500).send('Server error');
+              });
+            }
+
+            // Delete from room_users table
+            connection.query('DELETE FROM room_users WHERE room_id = ?', [roomId], (err, results) => {
+              if (err) {
+                return connection.rollback(() => {
+                  console.error('Error deleting room_users:', err);
+                  res.status(500).send('Server error');
+                });
+              }
+
+              // Delete from submitted_users table
+              connection.query('DELETE FROM submitedusers WHERE room_id = ?', [roomId], (err, results) => {
+                if (err) {
+                  return connection.rollback(() => {
+                    console.error('Error deleting submitted_users:', err);
+                    res.status(500).send('Server error');
+                  });
+                }
+
+                // Delete from room table
+                connection.query('DELETE FROM room WHERE room_id = ?', [roomId], (err, results) => {
+                  if (err) {
+                    return connection.rollback(() => {
+                      console.error('Error deleting room:', err);
+                      res.status(500).send('Server error');
+                    });
+                  }
+
+                  // Commit the transaction
+                  connection.commit(err => {
+                    if (err) {
+                      return connection.rollback(() => {
+                        console.error('Error committing transaction:', err);
+                        res.status(500).send('Server error');
+                      });
+                    }
+
+                    res.send('Room and related data deleted successfully');
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
+// Delete a user and all related data
+app.delete('/delete/user/:username', (req, res) => {
+  const username = req.params.username;
+
+  // Start a transaction
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting connection:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    connection.beginTransaction(err => {
+      if (err) {
+        console.error('Error starting transaction:', err);
+        res.status(500).send('Server error');
+        return;
+      }
+
+      // Get image paths from images table
+      connection.query('SELECT image_path FROM images WHERE uploader_username = ?', [username], (err, results) => {
+        if (err) {
+          return connection.rollback(() => {
+            console.error('Error fetching images:', err);
+            res.status(500).send('Server error');
+          });
+        }
+
+        // Delete image files from file system
+        results.forEach(row => {
+          const imagePath = path.join(__dirname, 'public', row.image_path);
+          fs.unlink(imagePath, err => {
+            if (err) {
+              console.error('Error deleting image file:', err);
+            }
+          });
+        });
+
+        // Delete from images table
+        connection.query('DELETE FROM images WHERE uploader_username = ?', [username], (err, results) => {
+          if (err) {
+            return connection.rollback(() => {
+              console.error('Error deleting images:', err);
+              res.status(500).send('Server error');
+            });
+          }
+
+          // Delete from job table
+          connection.query('DELETE FROM job WHERE job_owner = ?', [username], (err, results) => {
+            if (err) {
+              return connection.rollback(() => {
+                console.error('Error deleting jobs:', err);
+                res.status(500).send('Server error');
+              });
+            }
+
+            // Delete from room_users table
+            connection.query('DELETE FROM room_users WHERE username = ?', [username], (err, results) => {
+              if (err) {
+                return connection.rollback(() => {
+                  console.error('Error deleting room_users:', err);
+                  res.status(500).send('Server error');
+                });
+              }
+
+              // Delete from submitedusers table
+              connection.query('DELETE FROM submitedusers WHERE username = ?', [username], (err, results) => {
+                if (err) {
+                  return connection.rollback(() => {
+                    console.error('Error deleting submitedusers:', err);
+                    res.status(500).send('Server error');
+                  });
+                }
+
+                // Finally, delete the user from users table
+                connection.query('DELETE FROM users WHERE username = ?', [username], (err, results) => {
+                  if (err) {
+                    return connection.rollback(() => {
+                      console.error('Error deleting user:', err);
+                      res.status(500).send('Server error');
+                    });
+                  }
+
+                  // Commit the transaction
+                  connection.commit(err => {
+                    if (err) {
+                      return connection.rollback(() => {
+                        console.error('Error committing transaction:', err);
+                        res.status(500).send('Server error');
+                      });
+                    }
+
+                    res.send('User and all related data deleted successfully');
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log("Server is running on port 3000");

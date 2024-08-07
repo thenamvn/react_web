@@ -5,12 +5,12 @@ const verifyToken = async () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        Authorization: "Bearer " + localStorage.getItem("token_admin"),
       },
     });
     const data = await response.json();
     console.log(data);
-    const adminUsername = localStorage.getItem("username");
+    const adminUsername = localStorage.getItem("admin_username");
     if (data.success && data.user.username === adminUsername) {
       return true;
     } else {

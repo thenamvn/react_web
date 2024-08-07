@@ -21,6 +21,7 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.0",
     "path": "^0.12.7",
+    "plotly.js-dist": "^2.34.0",
     "qrcode.react": "^3.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
