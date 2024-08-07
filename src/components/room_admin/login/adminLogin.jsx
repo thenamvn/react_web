@@ -23,7 +23,13 @@ const AdminLogin = () => {
                     console.log('Login success');
                     localStorage.setItem('token_admin', data.token);
                     localStorage.setItem('admin_username', username);
-                    navigate('/admin/dashboard');
+                    const redirectPath = localStorage.getItem("redirectPathAdmin");
+                    if (redirectPath) {
+                      localStorage.removeItem("redirectPathAdmin");
+                      navigate(redirectPath);
+                    } else {
+                        navigate('/admin/dashboard');
+                    }
                 } else {
                     console.log('Login failed');
                 }

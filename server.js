@@ -678,6 +678,37 @@ app.delete('/delete/user/:username', (req, res) => {
   });
 });
 
+app.get('/admin/getinfo/:username', (req, res) => {
+  const username = req.params.username;
+  pool.query('SELECT * FROM admin_account WHERE username = ?', [username], (err, results) => {
+    if (err) {
+      console.error('Error fetching user:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).send('User not found');
+      return;
+    }
+
+    res.json(results[0]);
+  });
+});
+
+app.put('/admin/update/:username', (req, res) => {
+  const username = req.params.username;
+  const password = req.body.password;
+  pool.query('UPDATE admin_account SET password = ? WHERE username = ?', [password, username], (err, results) => {
+    if (err) {
+      console.error('Error updating user:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+    res.send('Password updated successfully');
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log("Server is running on port 3000");

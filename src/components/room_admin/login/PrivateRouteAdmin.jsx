@@ -17,7 +17,7 @@ const PrivateRouteAdmin = ({ component: Component, ...rest }) => {
   }
 
   if (!isAuthenticated) {
-    localStorage.setItem('redirectPath', location.pathname);
+    localStorage.setItem('redirectPathAdmin', location.pathname);
     return <Navigate to="/admin" />;
   }
 
