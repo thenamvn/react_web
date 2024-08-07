@@ -38,30 +38,38 @@ const UserManager = () => {
       <Navigation />
       <main className={styles.main}>
         <div className={styles.container}>
-          <table id={styles.users_table}>
-            <thead>
-              <tr>
-                <th>Full Name</th>
-                <th>Username</th>
-                <th>Number of joined rooms</th>
-                <th>Number of created rooms</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(user => (
-                <tr key={user.username}>
-                  <td>{user.fullname}</td>
-                  <td>{user.username}</td>
-                  <td>{user.joined_rooms}</td>
-                  <td>{user.created_rooms}</td>
-                  <td>
-                  <button className={styles.button} onClick={() => handleDeleteUser(user.username)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <h1 className={styles.heading}>User Manager</h1>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3>User List</h3>
+            </div>
+            <div className={styles.cardBody}>
+              <table id={styles.users_table}>
+                <thead>
+                  <tr>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Number of joined rooms</th>
+                    <th>Number of created rooms</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map(user => (
+                    <tr key={user.username}>
+                      <td>{user.fullname}</td>
+                      <td>{user.username}</td>
+                      <td>{user.joined_rooms}</td>
+                      <td>{user.created_rooms}</td>
+                      <td>
+                        <button className={styles.button} onClick={() => handleDeleteUser(user.username)}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </main>
     </div>
