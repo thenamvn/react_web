@@ -102,12 +102,12 @@ const Room = () => {
 
   async function handleUserClick(userId) {
     const room_id = id;
-    
+
     try {
       const response = await fetch(`http://localhost:3000/room/${room_id}/userimages?username=${userId}`);
       const imagesData = await response.json();
       const images = imagesData.map((image) => image.image_path);
-      
+
       setSelectedUserImages(images);
       setSelectedUser(userId);
       setShowSubmitedForm(true);
@@ -242,7 +242,7 @@ const Room = () => {
         console.error("Error in file upload:", err);
       });
 
-    
+
     if (isAdmin) {
 
       // upload job description from text area
@@ -263,25 +263,25 @@ const Room = () => {
         .catch((error) => {
           console.error("Error uploading job:", error);
         });
-      } else {
-        fetch("http://localhost:3000/submit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: id,
-            username: localStorage.getItem("username"),
-          }),
+    } else {
+      fetch("http://localhost:3000/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: id,
+          username: localStorage.getItem("username"),
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Submitted successfully:", data);
         })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log("Submitted successfully:", data);
-          })
-          .catch((error) => {
-            console.error("Error submitting:", error);
-          });
-      }
+        .catch((error) => {
+          console.error("Error submitting:", error);
+        });
+    }
   }
 
 
@@ -493,26 +493,24 @@ const Room = () => {
         )}
         {uploadedFileURLs.length > 0 && (
           <div className={styles.sliderContainer}>
-            {/* <Slider {...sliderSettings}
-          >
-            {uploadedFileURLs.map((url, index) => (
-              <div key={index}>
-                <img
-                  src={url}
-                  alt={`Uploaded content ${index + 1}`}
-                  className={styles.uploadedImage}
-                  style={{
-                    width: "80vw",
-                    height: "auto",
-                    maxWidth: "80vw", // Giữ nguyên giới hạn này vì ảnh có chất lượng tối đa là 1080p
-                    maxHeight: "50vh",
-                    border: "none",
-                  }}
-                />
-              </div>
-            ))}
-          </Slider> */}
-            <Slideshow images={uploadedFileURLs} />
+            <Slider {...sliderSettings}>
+              {uploadedFileURLs.map((url, index) => (
+                <div key={index}>
+                  <img
+                    src={url}
+                    alt={`Uploaded content ${index + 1}`}
+                    className={styles.uploadedImage}
+                    style={{
+                      width: "80vw",
+                      height: "auto",
+                      maxWidth: "80vw", // Keep this limit as the image has a maximum quality of 1080p
+                      maxHeight: "50vh",
+                      border: "none",
+                    }}
+                  />
+                </div>
+              ))}
+            </Slider>
           </div>
         )}
 

@@ -17,14 +17,13 @@ const GameRoomManager = () => {
   }, []);
 
   const handleDelete = (roomId) => {
-    const updatedRooms = rooms.filter(room => room.room_id !== roomId);
-    setRooms(updatedRooms);
     axios.delete(`http://localhost:3000/delete/room/${roomId}`)
       .then(response => {
-        setRooms(Array.isArray(response.data) ? response.data : []);
+        const updatedRooms = rooms.filter(room => room.room_id !== roomId);
+        setRooms(updatedRooms);
       })
       .catch(error => {
-        console.error('There was an error fetching the rooms!', error);
+        console.error('There was an error deleting the room!', error);
       });
   };
 
