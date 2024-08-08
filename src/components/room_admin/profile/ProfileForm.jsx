@@ -23,6 +23,7 @@ const ProfileForm = () => {
                 if (res.data.password === current_password) {
                     axios.put(`http://localhost:3000/admin/update/${admin_username}`, {
                         password: new_password
+                    }, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token_admin') }
                     })
                         .then((res) => {
                             alert('Password updated successfully.Please login again');

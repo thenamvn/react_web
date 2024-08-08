@@ -21,6 +21,24 @@ const pool = mysql.createPool({
   port: process.env.DB_PORT,
 });
 
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(403).send('A token is required for authentication');
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    req.user = decoded;
+  } catch (err) {
+    const decoded = jwt.decode(token);
+    return res.status(401).json({
+      message: 'Invalid Token',
+    });
+  }
+  return next();
+};
+
 // Tạo thư mục public/uploads nếu chưa tồn tại
 const uploadDir = path.resolve(__dirname, './public/uploads');
 console.log(uploadDir);
@@ -437,6 +455,25 @@ app.post("/verify-token", (req, res) => {
     return res.json({ success: true, message: "Token is valid",user }); // If the token is valid, return a success message
   });
 });
+//update password for user
+app.put('/user/update/password/:username', verifyToken, (req, res) => {
+  const username = req.params.username;
+  const password = req.body.password;
+
+  // Check if the user is authorized to update the password
+  if (req.user.username !== username) {
+    return res.status(403).send('You are not authorized to update this password');
+  }
+
+  pool.query('UPDATE users SET password = ? WHERE username = ?', [password, username], (err, results) => {
+    if (err) {
+      console.error('Error updating user:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+    res.send('Password updated successfully');
+  });
+});
 
 //admin
 // Tạo endpoint để lấy danh sách các phòng
@@ -703,9 +740,14 @@ app.get('/admin/getinfo/:username', (req, res) => {
   });
 });
 
-app.put('/admin/update/:username', (req, res) => {
+app.put('/admin/update/:username', verifyToken, (req, res) => {
   const username = req.params.username;
   const password = req.body.password;
+  // Check if the user is authorized to update the password
+  if (req.user.username !== username) {
+    return res.status(403).send('You are not authorized to update this password');
+  }
+
   pool.query('UPDATE admin_account SET password = ? WHERE username = ?', [password, username], (err, results) => {
     if (err) {
       console.error('Error updating user:', err);

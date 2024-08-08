@@ -14,14 +14,6 @@
   text-align: center;
 }
 
-.leaderboard {
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  max-width: 375px;
-  margin: 0 auto;
-}
 
 .SubmitedFormHeader {
   padding: 5px 10px;
@@ -47,11 +39,26 @@
   color: #777;
 }
 
+.leaderboard {
+  margin-top: 100px;
+  width: 80%;
+  max-height: min-content;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-height: 300px; 
+  overflow-y: auto; 
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .leaderboard h2 {
   text-align: center;
   color: #333;
   font-family: 'Arial', sans-serif;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .leaderboardHeader ul {
@@ -330,64 +337,6 @@
   border-radius: 5px;
   font-size: 12px;
   bottom: 10px;
-}
-
-.leaderboard {
-  margin-top: 100px;
-  width: 80%;
-  max-height: min-content;
-  padding: 20px;
-  border: 2px solid #007bff;
-  border-radius: 10px;
-  background: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-height: 300px; /* Set a max height for the leaderboard */
-  overflow-y: auto; /* Add vertical scrollbar if needed */
-  /* Center the leaderboard */
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  /* Center the content */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-
-}
-
-.leaderboard h2 {
-  font-size: 1.5rem;
-  color: #007bff;
-  margin-bottom: 10px;
-}
-
-.leaderboard ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.leaderboard li {
-  font-size: 1.1rem;
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition for transform and box-shadow */
-}
-
-.leaderboard li:last-child {
-  border-bottom: none;
-}
-
-.leaderboard li:nth-child(odd) {
-  background: #f9f9f9;
-}
-
-.leaderboard li:hover {
-  background: #e9e9e9;
-  transform: translateY(-5px); /* Slightly raise the item */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add shadow for elevation effect */
 }
 
 .missionDiv {

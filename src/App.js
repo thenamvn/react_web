@@ -5,6 +5,7 @@ import SignupForm from './components/login/SignupForm';
 import DashBoard from './components/home/DashBoard';
 import PrivateRoute from './components/login/PrivateRoute';
 import Room from './components/room/Room';
+import AccountPage from './components/profile/AccountPage';
 import { BottomNavigation, BottomNavigationAction } from '@mui/material';
 //admin
 import AdminLogin from './components/room_admin/login/adminLogin';
@@ -16,7 +17,7 @@ import ProfileForm from './components/room_admin/profile/ProfileForm';
 // Import the styles
 import styles from "./App.module.css";
 // Import icons
-import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle';
+import HomeIcon from '@mui/icons-material/Home';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 // New component for handling navigation
@@ -25,7 +26,7 @@ const NavigationComponent = () => {
   const location = useLocation(); // Now used within the context of <Router>
 
   const shouldShowBottomNavigation = () => {
-    const hideOnRoutes = ['/login', '/signup','/','/admin','/admin/dashboard','/admin/user-manager','/admin/room-manager','/admin/profile'];
+    const hideOnRoutes = ['/admin','/admin/dashboard','/admin/user-manager','/admin/room-manager','/admin/profile'];
     return !hideOnRoutes.includes(location.pathname);
   };
   
@@ -49,9 +50,9 @@ const NavigationComponent = () => {
         }}
         showLabels = {true}
     >
-        <BottomNavigationAction label="Submited List" icon={<PlaylistAddCheckCircleIcon />} component={Link} to="/login" />
+        <BottomNavigationAction label="Home" icon={<HomeIcon />} component={Link} to="/login" />
         <BottomNavigationAction label="Game" icon={<AddCircleOutlineIcon/>} component={Link} to="/dashboard" />
-        <BottomNavigationAction label="Profile" icon={<AccountCircleIcon />} component={Link} to="/me" />
+        <BottomNavigationAction label="My Account" icon={<AccountCircleIcon />} component={Link} to="/me" />
     </BottomNavigation>
   ) : null;
 };
@@ -60,16 +61,18 @@ const App = () => {
   return (
     <Router>
         <Routes>
+          <Route path="/" element={<LoginForm />} /> {/* Redirect to login by default */}
           <Route path="/login" element={<LoginForm />} />
           <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/signup" element={<SignupForm />} />
+          <Route path="/dashboard" element={<PrivateRoute component={DashBoard} />} />
+          <Route path="/room/:id" element={<PrivateRoute component={Room} />} />
+          <Route path="/me" element={<PrivateRoute component={AccountPage} />} />
+          {/*Admin*/}
           <Route path="/admin/dashboard" element={<PrivateRouteAdmin component={Panel} />} />
           <Route path='/admin/room-manager' element={<PrivateRouteAdmin component={GameRoomManager} />} />
           <Route path='/admin/user-manager' element={<PrivateRouteAdmin component={UserManager} />} />
           <Route path='/admin/profile' element={<PrivateRouteAdmin component={ProfileForm} />} />
-          <Route path="/signup" element={<SignupForm />} />
-          <Route path="/dashboard" element={<PrivateRoute component={DashBoard} />} />
-          <Route path="/room/:id" element={<PrivateRoute component={Room} />} />
-          <Route path="/" element={<LoginForm />} /> {/* Redirect to login by default */}
         </Routes>
         <NavigationComponent /> {/* Rendered within Router context */}
     </Router>

@@ -6,6 +6,7 @@ CREATE TABLE users (
   fullname VARCHAR(255) NOT NULL
 );
 
+select * from users;
 CREATE TABLE admin_account (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(255) NOT NULL UNIQUE,
@@ -14,6 +15,7 @@ CREATE TABLE admin_account (
 );
 CREATE INDEX idx_username ON users(username);
 
+select * from admin_account;
 CREATE TABLE room (
   room_id VARCHAR(6) PRIMARY KEY,
   admin_username VARCHAR(255) NOT NULL,
@@ -57,7 +59,6 @@ select * from images;
 
 CREATE INDEX idx_room_id ON images(room_id);
 CREATE INDEX idx_uploader_username ON images(uploader_username);
-
 Create Table job (
 	room_id varchar(6) not null,
     job_description text,

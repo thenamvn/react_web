@@ -48,7 +48,6 @@ const Room = () => {
         setRoomDetails(data);
         const isAdmin = data.admin_username === localStorage.getItem("username");
         setIsAdmin(isAdmin);
-        console.log("isAdmin:", isAdmin);
 
         // If admin, fetch submitted users
         if (isAdmin) {

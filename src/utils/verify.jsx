@@ -9,7 +9,6 @@ const verifyToken = async () => {
       },
     });
     const data = await response.json();
-    console.log(data);
     const adminUsername = localStorage.getItem("username");
     if (data.success && data.user.username === adminUsername) {
       return true;
