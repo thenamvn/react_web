@@ -716,6 +716,74 @@ app.put('/admin/update/:username', (req, res) => {
   });
 });
 
+//deny user submit
+app.delete('/deny/user/:username/room/:room_id', (req, res) => {
+  const username = req.params.username;
+  const room_id = req.params.room_id;
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting connection:', err);
+      res.status(500).json({ message: 'Server error' });
+      return;
+    }
+
+    connection.beginTransaction(err => {
+      if (err) {
+        console.error('Error starting transaction:', err);
+        res.status(500).json({ message: 'Server error' });
+        return;
+      }
+
+      connection.query('SELECT image_path FROM images WHERE uploader_username = ? AND room_id = ?', [username, room_id], (err, results) => {
+        if (err) {
+          return connection.rollback(() => {
+            console.error('Error fetching images:', err);
+            res.status(500).json({ message: 'Server error' });
+          });
+        }
+
+        results.forEach(row => {
+          const imagePath = path.join(__dirname, 'public', row.image_path);
+          fs.unlink(imagePath, err => {
+            if (err) {
+              console.error('Error deleting image file:', err);
+            }
+          });
+        });
+
+        connection.query('DELETE FROM images WHERE uploader_username = ? AND room_id = ?', [username, room_id], (err, results) => {
+          if (err) {
+            return connection.rollback(() => {
+              console.error('Error deleting images:', err);
+              res.status(500).json({ message: 'Server error' });
+            });
+          }
+
+          connection.query('DELETE FROM submitedusers WHERE username = ? AND room_id = ?', [username, room_id], (err, results) => {
+            if (err) {
+              return connection.rollback(() => {
+                console.error('Error deleting submitedusers:', err);
+                res.status(500).json({ message: 'Server error' });
+              });
+            }
+
+            connection.commit(err => {
+              if (err) {
+                return connection.rollback(() => {
+                  console.error('Error committing transaction:', err);
+                  res.status(500).json({ message: 'Server error' });
+                });
+              }
+
+              res.json({ message: 'User-related data in the specified room deleted successfully' });
+            });
+          });
+        });
+      });
+    });
+  });
+});
 
 app.listen(PORT, () => {
   console.log("Server is running on port 3000");

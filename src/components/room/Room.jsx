@@ -109,8 +109,27 @@ const Room = () => {
   }
 
   function handleDeny(username) {
-    console.log("Denying user:", username);
+    console.log("Denying user:", username, "in room:", id);
+
+    fetch(`http://localhost:3000/deny/user/${username}/room/${id}`, {
+      method: 'DELETE',
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data);
+        setSubmittedUsers(prevUsers => prevUsers.filter(user => user.username !== username));
+        setShowSubmitedForm(false);
+      })
+      .catch(error => {
+        console.error('There was an error denying the user!', error);
+      });
   }
+
   async function handleUserClick(userId, fullname) {
     const room_id = id;
 
