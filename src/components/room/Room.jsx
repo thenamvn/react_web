@@ -187,6 +187,8 @@ const Room = () => {
         .then((response) => response.json())
         .then((data) => {
           console.log("Job uploaded successfully:", data);
+          alert("Job uploaded successfully");
+          setShowUploadFormAdmin(false);
         })
         .catch((error) => {
           console.error("Error uploading job:", error);
@@ -206,6 +208,8 @@ const Room = () => {
         .then((response) => response.json())
         .then((data) => {
           console.log("Submitted successfully:", data);
+          alert("Submitted successfully");
+          setShowUploadFormUser(false);
         })
         .catch((error) => {
           console.error("Error submitting:", error);
