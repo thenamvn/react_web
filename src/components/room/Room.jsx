@@ -103,6 +103,14 @@ const Room = () => {
     setShowUploadFormUser(true);
     setShowImages(false);
   };
+
+  function handleAccept(username) {
+    console.log("Accepting user:", username);
+  }
+
+  function handleDeny(username) {
+    console.log("Denying user:", username);
+  }
   async function handleUserClick(userId, fullname) {
     const room_id = id;
 
@@ -210,6 +218,7 @@ const Room = () => {
           console.log("Submitted successfully:", data);
           alert("Submitted successfully");
           setShowUploadFormUser(false);
+          setShowImages(true);
         })
         .catch((error) => {
           console.error("Error submitting:", error);
@@ -346,13 +355,13 @@ const Room = () => {
                 <div className={styles.buttonContainer}>
                   <button
                     className={styles.acceptButton}
-                  // onClick={() => handleAccept(selectedUser)}
+                    onClick={() => handleAccept(selectedUser)}
                   >
                     Accept
                   </button>
                   <button
                     className={styles.denyButton}
-                  // onClick={() => handleDeny(selectedUser)}
+                    onClick={() => handleDeny(selectedUser)}
                   >
                     Deny
                   </button>
