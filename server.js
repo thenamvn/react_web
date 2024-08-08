@@ -271,7 +271,6 @@ app.post('/upload', upload.array('file'), (req, res) => {
     }
 
     // If the room exists, insert the images
-    const fileUrls = files.map(file => `http://localhost:${PORT}/uploads/${file.filename}`);
     const values = files.map(file => [room_id, uploader_username, `/uploads/${file.filename}`]);
 
     const query = 'INSERT INTO images (room_id, uploader_username, image_path) VALUES ?';
@@ -281,11 +280,18 @@ app.post('/upload', upload.array('file'), (req, res) => {
         console.error('Error inserting into images table:', err);
         return res.status(500).json({ error: 'Database error' });
       }
-
-      res.status(200).json({ fileUrls });
+      const selectQuery = 'SELECT * FROM images WHERE room_id = ? AND uploader_username = ?';
+      pool.query(selectQuery, [room_id, uploader_username], (err, results) => {
+        if (err) {
+          console.error('Error fetching images:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        res.status(200).json({ images: results });
+      });
     });
   });
 });
+
 
 // Serve static files from the public directory
 app.use(express.static(path.resolve(__dirname,'public')));

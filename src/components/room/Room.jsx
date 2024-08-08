@@ -5,9 +5,6 @@ import QRCode from "qrcode.react";
 import { readAndCompressImage } from "browser-image-resizer";
 import styles from "./Room.module.css"; // Import CSS module
 import { uploadFile } from "../../utils/upload"; // Import the upload function
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
@@ -18,6 +15,7 @@ const Room = () => {
   const { id } = useParams();
   const [files, setFiles] = useState([]);
   const [uploadedFileURLs, setUploadedFileURLs] = useState([]);
+  const [ShowImages, setShowImages] = useState(true);
   const [showRoomInfo, setShowRoomInfo] = useState(false);
   const [showUploadFormUser, setShowUploadFormUser] = useState(false);
   // Add state variables for the room details, admin status, error, job descriptions, and other necessary data
@@ -34,7 +32,6 @@ const Room = () => {
   const [selectedUserFullName, setSelectedUserFullName] = useState("");
   const [selectedUserImages, setSelectedUserImages] = useState([]);
 
-  const [showCarousel, setShowCarousel] = useState(true);
 
   useEffect(() => {
     const fetchRoomDetailsAndResources = async () => {
@@ -65,7 +62,7 @@ const Room = () => {
         if (!isAdmin) {
           const imagesResponse = await fetch(`http://localhost:3000/room/${id}/images`);
           const imagesData = await imagesResponse.json();
-          setUploadedFileURLs(imagesData.map((image) => image.image_path));
+          setUploadedFileURLs(imagesData);
 
           const jobsResponse = await fetch(`http://localhost:3000/room/${id}/jobs`);
           const jobsData = await jobsResponse.json();
@@ -100,8 +97,12 @@ const Room = () => {
   function UserShowUploadForm() {
     setShowUploadFormUser(false);
     setSelectedFiles([]);
+    setShowImages(true);
   };
-
+  function UserShowUploadFormAndHiddenImages() {
+    setShowUploadFormUser(true);
+    setShowImages(false);
+  };
   async function handleUserClick(userId, fullname) {
     const room_id = id;
 
@@ -160,8 +161,10 @@ const Room = () => {
     // Upload the files
     uploadFile(formData)
       .then((fileUrls) => {
-        // Store the image URLs
-        setUploadedFileURLs(fileUrls);
+        // Store the image URLs if is admin
+        if (isAdmin) {
+          setUploadedFileURLs(fileUrls);
+        }
       })
       .catch((err) => {
         console.error("Error in file upload:", err);
@@ -189,6 +192,7 @@ const Room = () => {
           console.error("Error uploading job:", error);
         });
     } else {
+
       fetch("http://localhost:3000/submit", {
         method: "POST",
         headers: {
@@ -357,7 +361,7 @@ const Room = () => {
             {/* Non-admin view */}
             <button
               className={styles.uploadButton}
-              onClick={() => setShowUploadFormUser(true)}
+              onClick={UserShowUploadFormAndHiddenImages}
             >
               <AddTaskIcon />
             </button>
@@ -398,18 +402,21 @@ const Room = () => {
               <h2>Your mission:</h2>
               {jobDescriptions.map((job, index) => (
                 <div key={index}>
-                  <p>{job}</p>
+                  <p>{job.job_description}</p>
                 </div>
               ))}
             </div>
+            {ShowImages && (
+              <div className={styles.ImagesForm}>
+                {uploadedFileURLs.length > 0 && (
+                  <div className={styles.uploadedImagesForm}>
+                    <Carousel data={uploadedFileURLs} />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
-        {uploadedFileURLs.length > 0 && (
-          <div className={styles.sliderContainer}>
-            <Carousel data={uploadedFileURLs} />
-          </div>
-        )}
-
         {/* Message for non-admins when no content is available */}
         {!isAdmin && uploadedFileURLs.length === 0 && (
           <div className={styles.noContentMessage}>
