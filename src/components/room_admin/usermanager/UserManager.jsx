@@ -5,11 +5,12 @@ import Navigation from '../dashboardadmin/negative';
 
 const UserManager = () => {
   const [users, setUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 5;
 
   useEffect(() => {
     fetchUsers();
   }, []);
-
 
   const fetchUsers = () => {
     axios.get('http://localhost:3000/admin/users')
@@ -22,15 +23,64 @@ const UserManager = () => {
   };
 
   const handleDeleteUser = (username) => {
-    const updatedUsers = users.filter(user => user.username !== username);
-    setUsers(updatedUsers);
     axios.delete(`http://localhost:3000/delete/user/${username}`)
       .then(response => {
         setUsers(users.filter(user => user.username !== username));
       })
       .catch(error => {
-        console.error('There was an error fetching the users!', error);
+        console.error('There was an error deleting the user!', error);
       });
+  };
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  const totalPages = Math.ceil(users.length / usersPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const renderPagination = () => {
+    const pageNumbers = [];
+    const maxPageButtons = 5; // Số lượng nút trang muốn hiển thị
+    const halfMaxPageButtons = Math.floor(maxPageButtons / 2);
+
+    let startPage = currentPage - halfMaxPageButtons;
+    let endPage = currentPage + halfMaxPageButtons;
+
+    if (startPage < 1) {
+      startPage = 1;
+      endPage = Math.min(totalPages, maxPageButtons);
+    }
+
+    if (endPage > totalPages) {
+      endPage = totalPages;
+      startPage = Math.max(1, totalPages - maxPageButtons + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className={styles.pagination}>
+        {currentPage > 1 && (
+          <button onClick={() => paginate(currentPage - 1)} className={styles.pageButton}>Previous</button>
+        )}
+        {pageNumbers.map(number => (
+          <button
+            key={number}
+            onClick={() => paginate(number)}
+            className={`${styles.pageButton} ${currentPage === number ? styles.active : ''}`}
+          >
+            {number}
+          </button>
+        ))}
+        {currentPage < totalPages && (
+          <button onClick={() => paginate(currentPage + 1)} className={styles.pageButton}>Next</button>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -55,7 +105,7 @@ const UserManager = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(user => (
+                  {currentUsers.map(user => (
                     <tr key={user.username}>
                       <td>{user.fullname}</td>
                       <td>{user.username}</td>
@@ -68,6 +118,7 @@ const UserManager = () => {
                   ))}
                 </tbody>
               </table>
+              {renderPagination()}
             </div>
           </div>
         </div>
