@@ -23,6 +23,30 @@
   margin: 0 auto;
 }
 
+.SubmitedFormHeader {
+  padding: 5px 10px;
+  text-align: center;
+  background-color: #f7f7f7;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 5px;
+}
+
+.SubmitedFormHeader h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.SubmitedFormHeader h3 {
+  margin: 5px 0 0 0;
+  font-size: 12px;
+  font-weight: normal;
+  color: #777;
+}
+
 .leaderboard h2 {
   text-align: center;
   color: #333;
@@ -61,6 +85,7 @@
 .leaderboardHeader li span {
   font-weight: bold;
   color: #555;
+  font-size: 12px;
 }
 
 .room {
@@ -147,12 +172,15 @@
 
 .closeButton {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 1rem;
+  right: 1rem;
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 1.5rem;
   cursor: pointer;
+}
+.closeButton:hover {
+  color: red;
 }
 
 .roomTitle {
@@ -306,8 +334,8 @@
 }
 
 .leaderboard {
-  margin-top: 20px;
-  width: 80vw;
+  margin-top: 100px;
+  width: 80%;
   max-height: min-content;
   padding: 20px;
   border: 2px solid #007bff;
@@ -318,7 +346,6 @@
   overflow-y: auto; /* Add vertical scrollbar if needed */
   /* Center the leaderboard */
   position: absolute;
-  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   /* Center the content */
@@ -407,6 +434,56 @@
 
 .fas.fa-upload {
   font-size: 20px; /* Adjust icon size */
+}
+
+.uploadedImagesForm {
+  /* existing styles */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1000;
+}
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* space between buttons */
+  margin-top: 5px; /* Add space between buttons and form */
+}
+.acceptButton {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.acceptButton:hover {
+  background-color: #45a049;
+}
+
+.denyButton {
+  background-color: #f44336; /* Red */
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.denyButton:hover {
+  background-color: #da190b;
 }
 
 /* Media query for tablets */

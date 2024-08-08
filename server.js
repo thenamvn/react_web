@@ -163,8 +163,9 @@ app.get('/room/:id/submited', (req, res) => {
   const roomId = req.params.id;
 
   const query = `
-    SELECT su.username
+    SELECT su.username, u.fullname
     FROM submitedusers su
+    JOIN users u ON su.username = u.username
     WHERE su.room_id = ?
   `;
 

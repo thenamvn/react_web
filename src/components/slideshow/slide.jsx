@@ -1,51 +1,50 @@
-import React, { useState } from 'react';
-import './Slideshow.module.css';
+import React, { useState } from "react";
+import { BsArrowLeftCircleFill, BsArrowRightCircleFill } from "react-icons/bs";
+import styles from "./Slideshow.module.css";
 
-const Slideshow = ({ images }) => {
-  const [slideIndex, setSlideIndex] = useState(1);
+const Carousel = ({ data }) => {
+  const [slide, setSlide] = useState(0);
 
-  const showDivs = (n) => {
-    let newIndex = n;
-    if (n > images.length) newIndex = 1;
-    if (n < 1) newIndex = images.length;
-    setSlideIndex(newIndex);
+  const nextSlide = () => {
+    setSlide(slide === data.length - 1 ? 0 : slide + 1);
   };
 
-  const plusDivs = (n) => showDivs(slideIndex + n);
-  const currentDiv = (n) => showDivs(n);
+  const prevSlide = () => {
+    setSlide(slide === 0 ? data.length - 1 : slide - 1);
+  };
 
   return (
-    <div className="w3-content w3-display-container" style={{ maxWidth: '800px' }}>
-      {images.map((src, index) => (
-        <img
-          key={index}
-          className={`mySlides ${slideIndex === index + 1 ? 'show' : ''}`}
-          src={src}
-          style={{ width: '100%' }}
-          alt={`Slide ${index + 1}`}
-        />
-      ))}
-      <div
-        className="w3-center w3-container w3-section w3-large w3-text-white w3-display-bottommiddle"
-        style={{ width: '100%' }}
-      >
-        <div className="w3-left w3-hover-text-khaki" onClick={() => plusDivs(-1)}>
-          &#10094;
-        </div>
-        <div className="w3-right w3-hover-text-khaki" onClick={() => plusDivs(1)}>
-          &#10095;
-        </div>
-        {images.map((_, index) => (
-          <span
-            key={index}
-            className={`w3-badge demo w3-border w3-transparent w3-hover-white ${slideIndex === index + 1 ? 'w3-white' : ''
-              }`}
-            onClick={() => currentDiv(index + 1)}
-          ></span>
-        ))}
-      </div>
+    <div className={styles.carousel}>
+      <BsArrowLeftCircleFill onClick={prevSlide} className={`${styles.arrow} ${styles.arrowLeft}`} />
+      {data.map((item, idx) => {
+        return (
+          <img
+            src={item.image_path}
+            alt={`Slide ${idx}`}
+            key={idx}
+            className={slide === idx ? styles.slide : `${styles.slide} ${styles.slideHidden}`}
+          />
+        );
+      })}
+      <BsArrowRightCircleFill
+        onClick={nextSlide}
+        className={`${styles.arrow} ${styles.arrowRight}`}
+      />
+      <span className={styles.indicators}>
+        {data.map((_, idx) => {
+          return (
+            <button
+              key={idx}
+              className={
+                slide === idx ? styles.indicator : `${styles.indicator} ${styles.indicatorInactive}`
+              }
+              onClick={() => setSlide(idx)}
+            ></button>
+          );
+        })}
+      </span>
     </div>
   );
 };
 
-export default Slideshow;
+export default Carousel;

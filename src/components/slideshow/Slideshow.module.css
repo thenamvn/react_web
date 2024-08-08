@@ -1,90 +1,74 @@
-/* Slideshow.css */
-body {
-  font-family: Arial;
-  margin: 0;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-img {
-  vertical-align: middle;
-}
-
-.container {
+.carousel {
   position: relative;
+  width: 85%;
+  max-width: 800px;
+  margin: auto;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.mySlides {
-  display: none;
+.slide {
+  width: 100%;
+  height: auto;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 1;
 }
 
-.show {
-  display: block;
-}
-
-.cursor {
-  cursor: pointer;
-}
-
-.prev,
-.next {
-  cursor: pointer;
-  position: absolute;
-  top: 40%;
-  width: auto;
-  padding: 16px;
-  margin-top: -50px;
-  color: white;
-  font-weight: bold;
-  font-size: 20px;
-  border-radius: 0 3px 3px 0;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.next {
-  right: 0;
-  border-radius: 3px 0 0 3px;
-}
-
-.prev:hover,
-.next:hover {
-  background-color: rgba(0, 0, 0, 0.8);
-}
-
-.numbertext {
-  color: #f2f2f2;
-  font-size: 12px;
-  padding: 8px 12px;
+.slideHidden {
+  opacity: 0;
   position: absolute;
   top: 0;
+  left: 0;
 }
 
-.caption-container {
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.3s ease-in-out;
+}
+
+.arrow:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.arrowLeft {
+  left: 10px;
+}
+
+.arrowRight {
+  right: 10px;
+}
+
+.indicators {
+  position: absolute;
+  bottom: 15px;
+  width: 100%;
   text-align: center;
-  background-color: #222;
-  padding: 2px 16px;
-  color: white;
+  z-index: 2;
 }
 
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
+.indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 5px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
 }
 
-.column {
-  float: left;
-  width: 16.66%;
+.indicatorInactive {
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
-.demo {
-  opacity: 0.6;
-}
-
-.active,
-.demo:hover {
-  opacity: 1;
+.indicator:hover,
+.indicator:focus {
+  background-color: rgba(255, 255, 255, 0.8);
 }

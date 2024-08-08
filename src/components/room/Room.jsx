@@ -12,8 +12,7 @@ import PostAddIcon from "@mui/icons-material/PostAdd";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import AddTaskIcon from "@mui/icons-material/AddTask";
-import Slideshow from "../slideshow/slide"
-
+import Carousel from "../slideshow/slide";
 
 const Room = () => {
   const { id } = useParams();
@@ -32,7 +31,10 @@ const Room = () => {
   const [showSubmitedForm, setShowSubmitedForm] = useState(false);
   const [submittedUsers, setSubmittedUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
+  const [selectedUserFullName, setSelectedUserFullName] = useState("");
   const [selectedUserImages, setSelectedUserImages] = useState([]);
+
+  const [showCarousel, setShowCarousel] = useState(true);
 
   useEffect(() => {
     const fetchRoomDetailsAndResources = async () => {
@@ -100,97 +102,20 @@ const Room = () => {
     setSelectedFiles([]);
   };
 
-  async function handleUserClick(userId) {
+  async function handleUserClick(userId, fullname) {
     const room_id = id;
 
     try {
       const response = await fetch(`http://localhost:3000/room/${room_id}/userimages?username=${userId}`);
       const imagesData = await response.json();
-      const images = imagesData.map((image) => image.image_path);
-
-      setSelectedUserImages(images);
+      setSelectedUserImages(imagesData);
       setSelectedUser(userId);
+      setSelectedUserFullName(fullname);
       setShowSubmitedForm(true);
     } catch (error) {
       console.error('Error fetching user images:', error);
     }
   }
-
-  const sliderSettings = {
-    centerMode: true,
-    dots: true,
-    infinite: uploadedFileURLs.length > 1,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    responsive: [
-      {
-        breakpoint: 1920, // Màn hình rất lớn, không cần tải ảnh lớn hơn 1080p
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: uploadedFileURLs.length > 1,
-        },
-      },
-      {
-        breakpoint: 1440, // Màn hình lớn
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: uploadedFileURLs.length > 1,
-        },
-      },
-      {
-        breakpoint: 1280, // Màn hình máy tính trung bình
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: uploadedFileURLs.length > 1,
-        },
-      },
-      {
-        breakpoint: 1024, // Máy tính bảng lớn và màn hình máy tính nhỏ
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: uploadedFileURLs.length > 1,
-        },
-      },
-      {
-        breakpoint: 768, // Máy tính bảng
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: uploadedFileURLs.length > 1,
-        },
-      },
-      {
-        breakpoint: 600, // Máy tính bảng nhỏ
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          initialSlide: 1,
-          infinite: uploadedFileURLs.length > 1,
-        },
-      },
-      {
-        breakpoint: 480, // Điện thoại di động lớn
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: uploadedFileURLs.length > 1,
-        },
-      },
-      {
-        breakpoint: 320, // Điện thoại di động
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          infinite: uploadedFileURLs.length > 1,
-        },
-      },
-    ],
-  };
 
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
@@ -297,7 +222,6 @@ const Room = () => {
   return (
     <div className={styles.bg_room}>
       <div className={styles.room}>
-        <h1 className={styles.roomTitle}>Welcome to room {id}</h1>
         {isAdmin ? (
           <>
             {/* Admin view */}
@@ -314,6 +238,19 @@ const Room = () => {
               >
                 <PostAddIcon />
               </button>
+            </div>
+            {/* Leaderboard */}
+            <div className={styles.leaderboard}>
+              <h2>Submited Users</h2>
+              <div className={styles.leaderboardHeader}>
+                <ul>
+                  {submittedUsers.map((user, index) => (
+                    <li key={index} onClick={() => handleUserClick(user.username, user.fullname)}>
+                      <span>{user.fullname}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
             {showRoomInfo && (
               <div className={styles.roomInfo}>
@@ -384,19 +321,7 @@ const Room = () => {
                 </button>
               </form>
             )}
-            {/* Leaderboard */}
-            <div className={styles.leaderboard}>
-              <h2>Submited Users</h2>
-              <div className={styles.leaderboardHeader}>
-                <ul>
-                  {submittedUsers.map((user, index) => (
-                    <li key={index} onClick={() => handleUserClick(user.username)}>
-                      <span>{user.username}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+
             {showSubmitedForm && (
               <div className={styles.uploadedImagesForm}>
                 <button
@@ -405,37 +330,25 @@ const Room = () => {
                 >
                   X
                 </button>
-                <h2>Images uploaded by {selectedUser}</h2>
-                <Slider {...sliderSettings}>
-                  {selectedUserImages.map((url, index) => (
-                    <div key={index}>
-                      <img
-                        src={url}
-                        alt={`Uploaded content ${index + 1}`}
-                        className={styles.uploadedImage}
-                        style={{
-                          width: "80vw",
-                          height: "auto",
-                          maxWidth: "80vw", // Keep this limit as the image has a maximum quality of 1080p
-                          maxHeight: "50vh",
-                          border: "none",
-                        }}
-                      />
-                    </div>
-                  ))}
-                </Slider>
-                <button
-                  className={styles.acceptButton}
-                // onClick={() => handleAccept(imageUrl)}
-                >
-                  Accept
-                </button>
-                <button
-                  className={styles.denyButton}
-                // onClick={() => handleDeny(imageUrl)}
-                >
-                  Deny
-                </button>
+                <div className={styles.SubmitedFormHeader}>
+                  <h2>{selectedUserFullName}</h2>
+                  <h3>{selectedUser}</h3>
+                </div>
+                <Carousel data={selectedUserImages} />
+                <div className={styles.buttonContainer}>
+                  <button
+                    className={styles.acceptButton}
+                  // onClick={() => handleAccept(selectedUser)}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className={styles.denyButton}
+                  // onClick={() => handleDeny(selectedUser)}
+                  >
+                    Deny
+                  </button>
+                </div>
               </div>
             )}
           </>
@@ -493,24 +406,7 @@ const Room = () => {
         )}
         {uploadedFileURLs.length > 0 && (
           <div className={styles.sliderContainer}>
-            <Slider {...sliderSettings}>
-              {uploadedFileURLs.map((url, index) => (
-                <div key={index}>
-                  <img
-                    src={url}
-                    alt={`Uploaded content ${index + 1}`}
-                    className={styles.uploadedImage}
-                    style={{
-                      width: "80vw",
-                      height: "auto",
-                      maxWidth: "80vw", // Keep this limit as the image has a maximum quality of 1080p
-                      maxHeight: "50vh",
-                      border: "none",
-                    }}
-                  />
-                </div>
-              ))}
-            </Slider>
+            <Carousel data={uploadedFileURLs} />
           </div>
         )}
 
