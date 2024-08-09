@@ -14,10 +14,11 @@ import PrivateRouteAdmin from './components/room_admin/login/PrivateRouteAdmin';
 import GameRoomManager from './components/room_admin/room_manager/GameRoomManager';
 import UserManager from './components/room_admin/usermanager/UserManager';
 import ProfileForm from './components/room_admin/profile/ProfileForm';
+import VoucherList from './components/voucher/VoucherList';
 // Import the styles
 import styles from "./App.module.css";
 // Import icons
-import HomeIcon from '@mui/icons-material/Home';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 // New component for handling navigation
@@ -50,7 +51,7 @@ const NavigationComponent = () => {
         }}
         showLabels = {true}
     >
-        <BottomNavigationAction label="Home" icon={<HomeIcon />} component={Link} to="/login" />
+        <BottomNavigationAction label="Home" icon={<CardGiftcardIcon />} component={Link} to="/voucher" />
         <BottomNavigationAction label="Game" icon={<AddCircleOutlineIcon/>} component={Link} to="/dashboard" />
         <BottomNavigationAction label="My Account" icon={<AccountCircleIcon />} component={Link} to="/me" />
     </BottomNavigation>
@@ -68,6 +69,7 @@ const App = () => {
           <Route path="/dashboard" element={<PrivateRoute component={DashBoard} />} />
           <Route path="/room/:id" element={<PrivateRoute component={Room} />} />
           <Route path="/me" element={<PrivateRoute component={AccountPage} />} />
+          <Route path="/voucher" element={<VoucherList />} />
           {/*Admin*/}
           <Route path="/admin/dashboard" element={<PrivateRouteAdmin component={Panel} />} />
           <Route path='/admin/room-manager' element={<PrivateRouteAdmin component={GameRoomManager} />} />

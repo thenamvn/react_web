@@ -530,6 +530,51 @@ app.get('/reward/:room_id/:username', (req, res) => {
   });
 });
 
+// API xóa reward theo room_id và username
+app.delete('/host/delete/reward', (req, res) => {
+  const { room_id, username } = req.query;
+
+  if (!room_id || !username) {
+      return res.status(400).json({ error: 'room_id and username are required' });
+  }
+
+  const query = 'DELETE FROM reward WHERE room_id = ? AND username = ?';
+  
+  pool.query(query, [room_id, username], (err, result) => {
+      if (err) {
+          return res.status(500).json({ error: err.message });
+      }
+
+      if (result.affectedRows === 0) {
+          return res.status(404).json({ message: 'No voucher found' });
+      }
+
+      res.json({ message: 'Voucher confirm successfully' });
+  });
+});
+
+//get all rewards of a user
+app.get('/rewards/:username', (req, res) => {
+  const username = req.params.username;
+
+  const query = `
+    SELECT r.*, u.fullname AS admin_fullname
+    FROM reward r
+    JOIN room rm ON r.room_id = rm.room_id
+    JOIN users u ON rm.admin_username = u.username
+    WHERE r.username = ?
+  `;
+
+  pool.query(query, [username], (err, results) => {
+    if (err) {
+      console.error('Error fetching rewards:', err);
+      return res.status(500).send('Server error');
+    }
+
+    res.json(results);
+  });
+});
+
 // Check if a record exists in denyjob by room_id and username
 app.get('/denycheck/:room_id/:username', (req, res) => {
   const room_id = req.params.room_id;
