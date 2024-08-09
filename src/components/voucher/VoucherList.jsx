@@ -26,7 +26,22 @@ const VoucherList = () => {
             .then((data) => {
                 const currentDate = new Date();
                 const validVouchers = data.filter(voucher => new Date(voucher.gift_expiration) > currentDate);
+                const expiredVouchers = data.filter(voucher => new Date(voucher.gift_expiration) < currentDate);
                 setVouchers(validVouchers);
+                // Delete expired vouchers
+                expiredVouchers.forEach(voucher => {
+                    fetch(`http://localhost:3000/delete/reward/expired/${voucher.id}`, {
+                        method: 'DELETE'
+                    })
+                        .then((response) => {
+                            if (!response.ok) {
+                                throw new Error(`Error deleting voucher: ${response.statusText}`);
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error deleting expired voucher:', error);
+                        });
+                });
             })
             .catch((error) => {
                 console.error('Error fetching vouchers:', error);
@@ -84,23 +99,23 @@ const VoucherList = () => {
 
     function handleConfirm(roomId, userId) {
         fetch(`http://localhost:3000/host/delete/reward?room_id=${roomId}&username=${userId}`, {
-          method: 'DELETE',
+            method: 'DELETE',
         })
-        .then(response => response.json())
-        .then(data => {
-          if (data.ok) {
-            alert(data.message);
-            setRewardInfo(null);
-            setShowResult(false);
-          } else {
-            alert(data.error || data.message);
-          }
-        })
-        .catch(error => {
-          console.error('Error deleting reward:', error);
-          alert('An error occurred while deleting the reward.');
-        });
-      }
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    alert(data.message);
+                    setRewardInfo(null);
+                    setShowResult(false);
+                } else {
+                    alert(data.error || data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting reward:', error);
+                alert('An error occurred while deleting the reward.');
+            });
+    }
 
     return (
         <div className={styles.parentContainer}>
@@ -155,7 +170,7 @@ const VoucherList = () => {
                         <h2 className={styles.popupTitle}>Voucher Confirm</h2>
                         <p className={styles.popupText}>Gift: {rewardInfo.gift}</p>
                         <button className={styles.popupButton} onClick={handleClose}>Close</button>
-                        <button className={styles.popupButton} onClick={handleConfirm(rewardInfo.roomId,rewardInfo.email)}>Confirm</button>
+                        <button className={styles.popupButton} onClick={() => handleConfirm(rewardInfo.roomId, rewardInfo.email)}>Confirm</button>
                     </div>
                 </div>
             )}

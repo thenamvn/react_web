@@ -69,7 +69,7 @@ const App = () => {
           <Route path="/dashboard" element={<PrivateRoute component={DashBoard} />} />
           <Route path="/room/:id" element={<PrivateRoute component={Room} />} />
           <Route path="/me" element={<PrivateRoute component={AccountPage} />} />
-          <Route path="/voucher" element={<VoucherList />} />
+          <Route path="/voucher" element={<PrivateRoute component={VoucherList} />} />
           {/*Admin*/}
           <Route path="/admin/dashboard" element={<PrivateRouteAdmin component={Panel} />} />
           <Route path='/admin/room-manager' element={<PrivateRouteAdmin component={GameRoomManager} />} />

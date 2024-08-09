@@ -629,6 +629,25 @@ app.delete('/deletedeny/:room_id/:username', (req, res) => {
   });
 });
 
+// DELETE route for deleting expired vouchers
+app.delete('/delete/reward/expired/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'DELETE FROM reward WHERE id = ?';
+
+  pool.query(query, [id], (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'No voucher found' });
+    }
+
+    res.json({ message: 'Voucher deleted successfully' });
+  });
+});
+
 //admin
 // Tạo endpoint để lấy danh sách các phòng
 app.get('/admin/roommanager', (req, res) => {
