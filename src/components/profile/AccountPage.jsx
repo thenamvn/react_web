@@ -1,25 +1,73 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './AccountPage.css';
+import { useNavigate } from 'react-router-dom';
 
 const AccountPage = () => {
-  const [email, setEmail] = useState('ntnhacker1@gmail.com');
+  const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const navigate = useNavigate();
 
-  const handleAccountInfoSubmit = (e) => {
+  useEffect(() => {
+    const username = localStorage.getItem('username');
+    setEmail(username);
+  }, []);
+
+  const handleAccountInfoSubmit = async (e) => {
     e.preventDefault();
-    // Logic xử lý cập nhật thông tin tài khoản
-    alert('Thông tin tài khoản đã được cập nhật!');
+    try {
+      const response = await fetch(`http://localhost:3000/user/update/fullname/${email}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming token is stored in localStorage
+        },
+        body: JSON.stringify({ fullname: fullName })
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const result = await response.text();
+      alert(result);
+      localStorage.setItem('current_username', fullName);
+    } catch (error) {
+      console.error('There was an error updating the fullname!', error);
+      alert('There was an error updating the fullname!');
+    }
   };
 
-  const handlePasswordChangeSubmit = (e) => {
+  const handlePasswordChangeSubmit = async (e) => {
     e.preventDefault();
     if (newPassword === confirmPassword) {
-      // Logic xử lý đổi mật khẩu
-      alert('Mật khẩu đã được đổi thành công!');
+      try {
+        const response = await fetch(`http://localhost:3000/user/update/password/${email}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming token is stored in localStorage
+          },
+          body: JSON.stringify({ password: newPassword })
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const result = await response.text();
+        alert(result);
+        localStorage.removeItem('token');
+        localStorage.removeItem('username');
+        localStorage.removeItem('current_username');
+        navigate('/login');
+      } catch (error) {
+        console.error('There was an error updating the password!', error);
+        alert('There was an error updating the password!');
+      }
     } else {
-      alert('Mật khẩu không khớp!');
+      alert('Passwords do not match!');
     }
   };
 

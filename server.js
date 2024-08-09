@@ -455,6 +455,7 @@ app.post("/verify-token", (req, res) => {
     return res.json({ success: true, message: "Token is valid",user }); // If the token is valid, return a success message
   });
 });
+
 //update password for user
 app.put('/user/update/password/:username', verifyToken, (req, res) => {
   const username = req.params.username;
@@ -471,7 +472,27 @@ app.put('/user/update/password/:username', verifyToken, (req, res) => {
       res.status(500).send('Server error');
       return;
     }
-    res.send('Password updated successfully');
+    res.send('Password updated successfully.Please login again!');
+  });
+});
+
+//update fullname for user
+app.put('/user/update/fullname/:username', verifyToken, (req, res) => {
+  const username = req.params.username;
+  const fullname = req.body.fullname;
+
+  // Check if the user is authorized to update the fullname
+  if (req.user.username !== username) {
+    return res.status(403).send('You are not authorized to update this fullname');
+  }
+
+  pool.query('UPDATE users SET fullname = ? WHERE username = ?', [fullname, username], (err, results) => {
+    if (err) {
+      console.error('Error updating user:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+    res.send('Fullname updated successfully');
   });
 });
 
