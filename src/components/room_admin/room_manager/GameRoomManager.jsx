@@ -1,32 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import Navigation from '../dashboardadmin/negative';
 import styles from './GameRoomManager.module.css';
 
 const GameRoomManager = () => {
   const [rooms, setRooms] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const roomsPerPage = 5;
 
   useEffect(() => {
-    axios.get('http://localhost:3000/admin/roommanager')
-      .then(response => {
-        setRooms(Array.isArray(response.data) ? response.data : []);
+    fetch('http://localhost:3000/admin/roommanager')
+      .then(response => response.json())
+      .then(data => {
+        setRooms(Array.isArray(data) ? data : []);
       })
       .catch(error => {
         console.error('There was an error fetching the rooms!', error);
       });
   }, []);
 
-  const handleDelete = (roomId) => {
-    axios.delete(`http://localhost:3000/delete/room/${roomId}`)
-      .then(response => {
+  const handleDelete = async (roomId) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:3000/delete/room/${roomId}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
         const updatedRooms = rooms.filter(room => room.room_id !== roomId);
         setRooms(updatedRooms);
-      })
-      .catch(error => {
-        console.error('There was an error deleting the room!', error);
-      });
+      } else {
+        console.error('Failed to delete the room');
+      }
+    } catch (error) {
+      console.error('There was an error deleting the room!', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const indexOfLastRoom = currentPage * roomsPerPage;
@@ -110,7 +119,13 @@ const GameRoomManager = () => {
                       </td>
                       <td>{room.room_members}</td>
                       <td>
-                        <button className={styles.button} onClick={() => handleDelete(room.room_id)}>Delete</button>
+                        <button
+                          className={styles.button}
+                          onClick={() => handleDelete(room.room_id)}
+                          disabled={loading}
+                        >
+                          {loading ? 'Deleting...' : 'Delete'}
+                        </button>
                       </td>
                     </tr>
                   ))}

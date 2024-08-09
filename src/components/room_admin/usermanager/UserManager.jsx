@@ -13,9 +13,10 @@ const UserManager = () => {
   }, []);
 
   const fetchUsers = () => {
-    axios.get('http://localhost:3000/admin/users')
-      .then(response => {
-        setUsers(response.data);
+    fetch('http://localhost:3000/admin/users')
+      .then(response => response.json())
+      .then(data => {
+        setUsers(data);
       })
       .catch(error => {
         console.error('There was an error fetching the users!', error);
@@ -23,9 +24,15 @@ const UserManager = () => {
   };
 
   const handleDeleteUser = (username) => {
-    axios.delete(`http://localhost:3000/delete/user/${username}`)
+    fetch(`http://localhost:3000/delete/user/${username}`, {
+      method: 'DELETE',
+    })
       .then(response => {
-        setUsers(users.filter(user => user.username !== username));
+        if (response.ok) {
+          setUsers(users.filter(user => user.username !== username));
+        } else {
+          console.error('Failed to delete the user');
+        }
       })
       .catch(error => {
         console.error('There was an error deleting the user!', error);
