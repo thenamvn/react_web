@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import styles from './UserManager.module.css';
 import Navigation from '../dashboardadmin/negative';
 

@@ -496,6 +496,94 @@ app.put('/user/update/fullname/:username', verifyToken, (req, res) => {
   });
 });
 
+//reward
+// Add a new reward
+app.post('/reward', (req, res) => {
+  const { room_id, username, gift, used, gift_expiration } = req.body;
+
+  pool.query('INSERT INTO reward (room_id, username, gift, used, gift_expiration) VALUES (?, ?, ?, ?, ?)', 
+    [room_id, username, gift, used, gift_expiration], (err, results) => {
+    if (err) {
+      console.error('Error adding reward:', err);
+      return res.status(500).send('Server error');
+    }
+    res.status(201).send('Reward added successfully');
+  });
+});
+
+// Get reward information by room_id and username
+app.get('/reward/:room_id/:username', (req, res) => {
+  const room_id = req.params.room_id;
+  const username = req.params.username;
+
+  pool.query('SELECT * FROM reward WHERE room_id = ? AND username = ?', [room_id, username], (err, results) => {
+    if (err) {
+      console.error('Error fetching reward information:', err);
+      return res.status(500).send('Server error');
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('Reward not found');
+    }
+
+    res.json(results[0]);
+  });
+});
+
+// Check if a record exists in denyjob by room_id and username
+app.get('/denycheck/:room_id/:username', (req, res) => {
+  const room_id = req.params.room_id;
+  const username = req.params.username;
+
+  pool.query('SELECT * FROM denyjob WHERE room_id = ? AND username = ?', [room_id, username], (err, results) => {
+    if (err) {
+      console.error('Error checking denyjob record:', err);
+      return res.status(500).send('Server error');
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('Record not found');
+    }
+
+    res.status(200).json({ message: 'Denied' });
+  });
+});
+
+// Add denyjob record
+app.post('/denyjob', (req, res) => {
+  const { room_id, username } = req.body;
+
+  console.log('Received request to add denyjob record:', req.body);
+
+  if (!room_id || !username) {
+    console.error('Missing room_id or username in request body');
+    return res.status(400).send('Bad Request: Missing room_id or username');
+  }
+
+  pool.query('INSERT INTO denyjob (room_id, username) VALUES (?, ?)', [room_id, username], (err, results) => {
+    if (err) {
+      console.error('Error adding denyjob record:', err);
+      return res.status(500).send('Server error');
+    }
+
+    res.status(201).send('Denied');
+  });
+});
+
+app.delete('/deletedeny/:room_id/:username', (req, res) => {
+  const room_id = req.params.room_id;
+  const username = req.params.username;
+
+  pool.query('DELETE FROM denyjob WHERE room_id = ? AND username = ?', [room_id, username], (err, results) => {
+    if (err) {
+      console.error('Error deleting denyjob record:', err);
+      return res.status(500).send('Server error');
+    }
+
+    res.status(200).send('Record deleted successfully');
+  });
+});
+
 //admin
 // Tạo endpoint để lấy danh sách các phòng
 app.get('/admin/roommanager', (req, res) => {

@@ -41,6 +41,25 @@ FOREIGN KEY (room_id) REFERENCES room(room_id),
 FOREIGN KEY (username) REFERENCES users(username)
 );
 
+CREATE TABLE denyjob (
+room_id VARCHAR(6) NOT NULL,
+username VARCHAR(255) NOT NULL,
+PRIMARY KEY (room_id, username),
+FOREIGN KEY (room_id) REFERENCES room(room_id),
+FOREIGN KEY (username) REFERENCES users(username)
+);
+
+select * from denyjob;
+
+CREATE TABLE reward (
+  room_id VARCHAR(6) NOT NULL,
+  username VARCHAR(255) NOT NULL,
+  gift VARCHAR(255) NOT NULL,
+  used BOOLEAN NOT NULL,
+  gift_expiration DATE NOT NULL,
+  PRIMARY KEY (room_id, username)
+);
+select * from reward;
 select * from submitedusers;
 
 CREATE INDEX idx_room_id ON room_users(room_id);

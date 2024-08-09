@@ -1,0 +1,91 @@
+/* RewardForm.module.css */
+
+/* Form toàn bộ */
+.rewardForm {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    position: relative;
+}
+
+/* Form group */
+.formGroup {
+    margin-bottom: 15px;
+}
+
+/* Label */
+.formGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333333;
+}
+
+/* Input fields */
+.formGroup input[type="text"],
+.formGroup input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+/* Hiệu ứng khi focus vào input fields */
+.formGroup input[type="text"]:focus,
+.formGroup input[type="date"]:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Nút submit */
+.submitButton {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #ffeb3b;
+    color: black;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hiệu ứng khi hover vào nút submit */
+.submitButton:hover {
+    background-color: #fdd835;
+}
+
+/* Hiệu ứng khi click vào nút submit */
+.submitButton:active {
+    transform: translateY(2px);
+}
+
+/* Hiệu ứng khi di chuột vào input và nút submit */
+.formGroup input[type="text"],
+.formGroup input[type="date"],
+.submitButton {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Close button */
+.closeButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.closeButton:hover {
+    color: #007BFF;
+}

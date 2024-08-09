@@ -1,0 +1,83 @@
+/* Reward.module.css */
+
+/* Overlay với hiệu ứng mờ nhẹ */
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Popup với nền gradient nhẹ và shadow gradient */
+.popup {
+  background: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 255, 255, 0.9));
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 10px 20px rgba(0, 255, 255, 0.4);
+  animation: popupSlideIn 0.5s ease-in-out;
+  transform: scale(1);
+}
+
+/* Tiêu đề với màu sắc tươi sáng */
+.popupTitle {
+  margin-bottom: 20px;
+  font-size: 26px;
+  color: #0078D7; /* Màu xanh tươi sáng */
+}
+
+/* Văn bản với màu sắc tinh tế */
+.popupText {
+  margin-bottom: 30px;
+  font-size: 18px;
+  color: #5A5A5A; /* Màu xám nhẹ */
+}
+
+/* Nút bấm với nền gradient tươi sáng, hiệu ứng hover và transition */
+.popupButton {
+  padding: 12px 25px;
+  background: linear-gradient(135deg, #42E695 0%, #3BB2B8 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.popupButton:hover {
+  background: linear-gradient(135deg, #3BB2B8 0%, #42E695 100%);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+/* Hiệu ứng cho popup */
+@keyframes popupSlideIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Hiệu ứng cho overlay */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

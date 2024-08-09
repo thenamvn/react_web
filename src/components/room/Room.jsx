@@ -10,6 +10,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import AddTaskIcon from "@mui/icons-material/AddTask";
 import Carousel from "../slideshow/slide";
+import PrizePopup from "./popup/Reward";
+import RewardForm from "./rewardForm/RewardForm";
+import DenyForm from "./popup/DenyForm";
 
 const Room = () => {
   const { id } = useParams();
@@ -32,6 +35,7 @@ const Room = () => {
   const [selectedUserFullName, setSelectedUserFullName] = useState("");
   const [selectedUserImages, setSelectedUserImages] = useState([]);
 
+  const [showRewardForm, setShowRewardForm] = useState(false);
 
   useEffect(() => {
     const fetchRoomDetailsAndResources = async () => {
@@ -56,29 +60,37 @@ const Room = () => {
           setSubmittedUsers(Array.isArray(submittedUsers) ? submittedUsers : []); // Ensure it's an array
         }
 
-
-        // If not admin, fetch images and jobs
         if (!isAdmin) {
-          const imagesResponse = await fetch(`http://localhost:3000/room/${id}/images`);
-          const imagesData = await imagesResponse.json();
-          setUploadedFileURLs(imagesData);
+          try {
+            // Fetch room images
+            const imagesResponse = await fetch(`http://localhost:3000/room/${id}/images`);
+            const imagesData = await imagesResponse.json();
+            setUploadedFileURLs(imagesData);
 
-          const jobsResponse = await fetch(`http://localhost:3000/room/${id}/jobs`);
-          const jobsData = await jobsResponse.json();
-          setJobDescriptions(jobsData);
+            // Fetch room jobs
+            const jobsResponse = await fetch(`http://localhost:3000/room/${id}/jobs`);
+            const jobsData = await jobsResponse.json();
+            setJobDescriptions(jobsData);
 
-          const joinRoom = await fetch(`http://localhost:3000/joinroom`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              id: id,
-              username: localStorage.getItem("username")
-            })
-          });
-          console.log("Join room response:", joinRoom);
+            // Join room
+            const joinRoomResponse = await fetch(`http://localhost:3000/joinroom`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                id: id,
+                username: localStorage.getItem("username"),
+              }),
+            });
+            const joinRoomData = await joinRoomResponse.json();
+            console.log("Join room response:", joinRoomData);
+
+          } catch (error) {
+            console.error("There was an error during the process:", error);
+          }
         }
+
       } catch (error) {
         console.error("Error fetching room details or resources:", error);
         setError(error.message);
@@ -103,12 +115,34 @@ const Room = () => {
     setShowImages(false);
   };
 
-  function handleAccept(username) {
-    console.log("Accepting user:", username);
+  function handleAccept() {
+    setShowSubmitedForm(false);
+    setShowRewardForm(true);
+  }
+
+  function handleCloseSubmitedImages() {
+    setShowRewardForm(false);
   }
 
   function handleDeny(username) {
     console.log("Denying user:", username, "in room:", id);
+
+    fetch(`http://localhost:3000/denyjob`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        room_id: id,
+        username: username
+      })
+    })
+      .then(response => {
+        if (!response.ok) {
+          console.error('Network response was not ok:', response.statusText);
+        }
+        return response.json();
+      })
 
     fetch(`http://localhost:3000/deny/user/${username}/room/${id}`, {
       method: 'DELETE',
@@ -357,6 +391,10 @@ const Room = () => {
               </form>
             )}
 
+            {showRewardForm &&
+              <RewardForm username={selectedUser} room_id={id} onClose={handleCloseSubmitedImages} />
+            }
+
             {showSubmitedForm && (
               <div className={styles.uploadedImagesForm}>
                 <button
@@ -373,7 +411,7 @@ const Room = () => {
                 <div className={styles.buttonContainer}>
                   <button
                     className={styles.acceptButton}
-                    onClick={() => handleAccept(selectedUser)}
+                    onClick={() => handleAccept()}
                   >
                     Accept
                   </button>
@@ -389,6 +427,8 @@ const Room = () => {
           </>
         ) : (
           <div className={styles.nonAdminView}>
+            <PrizePopup room_id={id} username={localStorage.getItem('username')} />
+            <DenyForm username={localStorage.getItem("username")} room_id={id} />
             {/* Non-admin view */}
             <button
               className={styles.uploadButton}
