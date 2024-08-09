@@ -51,7 +51,7 @@ const NavigationComponent = () => {
         }}
         showLabels = {true}
     >
-        <BottomNavigationAction label="Home" icon={<CardGiftcardIcon />} component={Link} to="/voucher" />
+        <BottomNavigationAction label="Vouchers" icon={<CardGiftcardIcon />} component={Link} to="/voucher" />
         <BottomNavigationAction label="Game" icon={<AddCircleOutlineIcon/>} component={Link} to="/dashboard" />
         <BottomNavigationAction label="My Account" icon={<AccountCircleIcon />} component={Link} to="/me" />
     </BottomNavigation>
