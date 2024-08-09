@@ -71,17 +71,6 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-
-// app.post('/upload', upload.array('file'), (req, res) => {
-//   if (!req.files || req.files.length === 0) {
-//     return res.status(400).json({ message: 'No files uploaded or file type is not allowed.' });
-//   }
-//   const fileUrls = req.files.map(file => `http://localhost:${PORT}/uploads/${file.filename}`);
-//   res.status(200).json({ fileUrls });
-// });
-
-// Endpoint to handle file uploads
-
 app.post('/createroom', (req, res) => {
   const { id, admin_username } = req.body;
 
@@ -456,6 +445,7 @@ app.post("/verify-token", (req, res) => {
   });
 });
 
+
 //update password for user
 app.put('/user/update/password/:username', verifyToken, (req, res) => {
   const username = req.params.username;
@@ -649,6 +639,67 @@ app.delete('/delete/reward/expired/:id', (req, res) => {
 });
 
 //admin
+
+// Get sum of rooms and empty rooms
+app.get('/admin/room/dashboard', (req, res) => {
+  // Query 1: Total number of rooms
+  pool.query('SELECT COUNT(*) AS total_rooms FROM room', (err, totalRoomsResult) => {
+    if (err) {
+      console.error('Error fetching total rooms:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    const totalRooms = totalRoomsResult[0]?.total_rooms || 0;
+
+    // Query 2: Total number of empty rooms
+    pool.query(`
+      SELECT COUNT(*) AS empty_rooms 
+      FROM room r 
+      LEFT JOIN room_users ru ON r.room_id = ru.room_id 
+      WHERE ru.room_id IS NULL
+    `, (err, emptyRoomsResult) => {
+      if (err) {
+        console.error('Error fetching empty rooms:', err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      const emptyRooms = emptyRoomsResult[0]?.empty_rooms || 0;
+
+      // Return the result
+      res.json({ total_rooms: totalRooms, empty_rooms: emptyRooms });
+    });
+  });
+});
+
+// API to get total number of users and active users
+app.get('/admin/user/dashboard', (req, res) => {
+  // Query 1: Total number of users
+  pool.query('SELECT COUNT(*) AS total_users FROM users', (err, totalUsersResult) => {
+    if (err) {
+      console.error('Error fetching total users:', err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+    const totalUsers = totalUsersResult[0]?.total_users || 0;
+
+    // Query 2: Total number of active users
+    pool.query(`
+      SELECT COUNT(DISTINCT u.username) AS active_users
+      FROM users u
+      LEFT JOIN room r ON u.username = r.admin_username
+      LEFT JOIN room_users ru ON u.username = ru.username
+      WHERE r.admin_username IS NOT NULL OR ru.username IS NOT NULL
+    `, (err, activeUsersResult) => {
+      if (err) {
+        console.error('Error fetching active users:', err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      const activeUsers = activeUsersResult[0]?.active_users || 0;
+
+      // Return the result
+      res.json({ total_users: totalUsers, active_users: activeUsers });
+    });
+  });
+});
+
+
 // Tạo endpoint để lấy danh sách các phòng
 app.get('/admin/roommanager', (req, res) => {
   const query = `
