@@ -25,6 +25,8 @@
   border-radius: 10px; /* Optional: add rounded corners */
   width: 375px;
   height: 670px;
+  position: relative;
+  top: 50%;
 }
 .signupContainer {
   display: flex;
