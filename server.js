@@ -916,25 +916,45 @@ app.delete('/delete/user/:username', (req, res) => {
                   });
                 }
 
-                // Finally, delete the user from users table
-                connection.query('DELETE FROM users WHERE username = ?', [username], (err, results) => {
+                // Delete from reward table
+                connection.query('DELETE FROM reward WHERE username = ?', [username], (err, results) => {
                   if (err) {
                     return connection.rollback(() => {
-                      console.error('Error deleting user:', err);
+                      console.error('Error deleting rewards:', err);
                       res.status(500).send('Server error');
                     });
                   }
 
-                  // Commit the transaction
-                  connection.commit(err => {
+                  // Delete from room table where the user is an admin
+                  connection.query('DELETE FROM room WHERE admin_username = ?', [username], (err, results) => {
                     if (err) {
                       return connection.rollback(() => {
-                        console.error('Error committing transaction:', err);
+                        console.error('Error deleting rooms:', err);
                         res.status(500).send('Server error');
                       });
                     }
 
-                    res.send('User and all related data deleted successfully');
+                    // Finally, delete the user from users table
+                    connection.query('DELETE FROM users WHERE username = ?', [username], (err, results) => {
+                      if (err) {
+                        return connection.rollback(() => {
+                          console.error('Error deleting user:', err);
+                          res.status(500).send('Server error');
+                        });
+                      }
+
+                      // Commit the transaction
+                      connection.commit(err => {
+                        if (err) {
+                          return connection.rollback(() => {
+                            console.error('Error committing transaction:', err);
+                            res.status(500).send('Server error');
+                          });
+                        }
+
+                        res.send('User and all related data deleted successfully');
+                      });
+                    });
                   });
                 });
               });
